@@ -3,6 +3,7 @@ class Praktikan {
   final int mataPraktikumId;
   final String nim;
   final String nama;
+  final String tanggalLahir;
   final String kelompok;
   final double nilaiAkhir;
 
@@ -11,6 +12,7 @@ class Praktikan {
     required this.mataPraktikumId,
     required this.nim,
     required this.nama,
+    required this.tanggalLahir,
     this.kelompok = '-',
     this.nilaiAkhir = 0.0,
   });
@@ -21,6 +23,7 @@ class Praktikan {
       mataPraktikumId: map['mata_praktikum_id'],
       nim: map['nim'],
       nama: map['nama'],
+      tanggalLahir:map['tanggal_lahir'],
       kelompok: map['kelompok'] ?? '-',
       nilaiAkhir: (map['nilai_akhir'] ?? 0).toDouble(),
     );
@@ -32,6 +35,7 @@ class Praktikan {
       'mata_praktikum_id': mataPraktikumId,
       'nim': nim,
       'nama': nama,
+      'tanggal_lahir': tanggalLahir,
       'kelompok': kelompok,
       'nilai_akhir': nilaiAkhir,
     };
