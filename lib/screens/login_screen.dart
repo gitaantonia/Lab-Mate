@@ -24,9 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (username.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Username dan password wajib diisi'),
-        ),
+        const SnackBar(content: Text('Username dan password wajib diisi')),
       );
       return;
     }
@@ -36,18 +34,13 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      final akun = await DBHelper.instance.login(
-        username,
-        password,
-      );
+      final akun = await DBHelper.instance.login(username, password);
 
       if (akun == null) {
         if (!mounted) return;
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Username atau password salah'),
-          ),
+          const SnackBar(content: Text('Username atau password salah')),
         );
         return;
       }
@@ -61,9 +54,19 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (!mounted) return;
 
+      final role = akun['role'] as String?;
+      if (role != 'aslab' && role != 'praktikan') {
+        await SessionHelper.logout();
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Role akun tidak dikenali')),
+        );
+        return;
+      }
+
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const MainShell()),
+        MaterialPageRoute(builder: (_) => MainShell(role: role!)),
       );
     } finally {
       if (mounted) {
@@ -84,9 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('LabMate'),
-      ),
+      appBar: AppBar(title: const Text('LabMate')),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -94,10 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
           children: [
             const Text(
               'Login LabMate',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 30),
@@ -120,9 +118,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 border: const OutlineInputBorder(),
                 suffixIcon: IconButton(
                   icon: Icon(
-                    obscurePassword
-                        ? Icons.visibility
-                        : Icons.visibility_off,
+                    obscurePassword ? Icons.visibility : Icons.visibility_off,
                   ),
                   onPressed: () {
                     setState(() {
@@ -151,4 +147,3 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
-
