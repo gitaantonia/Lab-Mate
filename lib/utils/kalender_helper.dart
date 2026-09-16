@@ -14,10 +14,8 @@ import 'dart:io';
 // =====================================================
 
 // ================= VALIDASI (batasan) =================
-// Ditaruh paling atas & dipanggil di semua fungsi konversi,
-// karena ini exact jenis validasi yang sebelumnya bikin nilai
-// kalkulator kamu dikurangi (nggak bisa pakai koma).
-String? validasiTanggal(int tanggal, int bulan, int tahun) {
+// Validasi tanggal lahir tetap membatasi tahun sampai hari ini.
+String? validasiTanggalLahir(int tanggal, int bulan, int tahun) {
   if (bulan < 1 || bulan > 12) return 'Bulan harus 1-12.';
   if (tahun < 1900 || tahun > DateTime.now().year) {
     return 'Tahun harus antara 1900 dan tahun sekarang.';
@@ -31,6 +29,20 @@ String? validasiTanggal(int tanggal, int bulan, int tahun) {
     return 'Tanggal tidak boleh di masa depan.';
   }
   return null; // null = valid
+}
+
+// Konverter kalender umum mendukung tanggal historis dan masa depan
+// dalam rentang tahun yang ditentukan.
+String? validasiTanggalUmum(int tanggal, int bulan, int tahun) {
+  if (bulan < 1 || bulan > 12) return 'Bulan harus 1-12.';
+  if (tahun < 1800 || tahun > 2200) {
+    return 'Tahun di luar jangkauan yang didukung (1800-2200).';
+  }
+  int hariDalamBulan = DateTime(tahun, bulan + 1, 0).day;
+  if (tanggal < 1 || tanggal > hariDalamBulan) {
+    return 'Tanggal $tanggal tidak valid untuk bulan $bulan/$tahun (maks $hariDalamBulan).';
+  }
+  return null;
 }
 
 // ================= 1. KONVERSI UMUR =================
@@ -157,16 +169,10 @@ Map<String, dynamic> masehiKeHijriah(int tanggal, int bulan, int tahun) {
 }
 
 // ================= 3. WETON (JAWA) =================
-// CATATAN VERIFIKASI: anchor awal saya coba pakai "1 Jan 1970 = Kamis
-// Kliwon" (klaim dari hitunganweton.id), tapi begitu di-cross-check ke
-// fakta yang JAUH lebih terverifikasi (17 Agustus 1945 = Jumat Legi —
-// dikonfirmasi 5+ sumber independen, termasuk almnk.com & ki-demang.com
-// yang punya sistem konversi kalender Jawa sendiri), hasilnya meleset
-// (dapat Pahing, bukan Legi). Jadi klaim "1970 = Kamis Kliwon" itu SALAH
-// atau pakai konvensi berbeda — saya pakai anchor 17 Agustus 1945 sebagai
-// gantinya karena lebih kuat buktinya.
+// Pasangan uji: 17 Agustus 1945 = Jumat Legi dan
+// 1 Januari 1970 = Kamis Wage.
 List<String> namaHari = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
-List<String> namaPasaran = ['Legi', 'Pahing', 'Pon', 'Wage', 'Kliwon']; // urutan sesuai anchor
+List<String> namaPasaran = ['Legi', 'Pahing', 'Pon', 'Wage', 'Kliwon'];
 
 Map<String, String> hitungWeton(DateTime tanggal) {
   String hari = namaHari[tanggal.weekday - 1]; // DateTime.weekday: Senin=1..Minggu=7
@@ -241,7 +247,9 @@ void main() {
     stdout.write('Tahun: ');
     int thn = int.parse(stdin.readLineSync()!);
 
-    String? error = validasiTanggal(tgl, bln, thn);
+    String? error = pilihan == '1'
+      ? validasiTanggalLahir(tgl, bln, thn)
+      : validasiTanggalUmum(tgl, bln, thn);
     if (error != null) {
       print('[GAGAL] $error');
       continue;
