@@ -380,4 +380,58 @@ class DBHelper {
       whereArgs: [praktikanId],
     );
   }
+    // =========================================================
+  // DATA DUMMY UNTUK TESTING KOMPUTASI
+  // =========================================================
+
+  Future<void> tambahDataDummy() async {
+    // Cek apakah data dummy sudah ada
+    final mataPraktikum = await getMataPraktikum();
+
+    if (mataPraktikum.isNotEmpty) {
+      return;
+    }
+
+    // 1. Tambah Mata Praktikum
+    final mataPraktikumId =
+        await tambahMataPraktikum('Pemrograman Mobile');
+
+    // 2. Tambah Komponen Nilai
+    await tambahKomponenBobot(
+      mataPraktikumId: mataPraktikumId,
+      namaKomponen: 'Tugas',
+      bobot: 30,
+    );
+
+    await tambahKomponenBobot(
+      mataPraktikumId: mataPraktikumId,
+      namaKomponen: 'Post-test',
+      bobot: 30,
+    );
+
+    await tambahKomponenBobot(
+      mataPraktikumId: mataPraktikumId,
+      namaKomponen: 'Project',
+      bobot: 40,
+    );
+
+    // 3. Tambah Praktikan
+    await tambahPraktikan(
+      mataPraktikumId: mataPraktikumId,
+      nim: '2024010001',
+      nama: 'Serena',
+    );
+
+    await tambahPraktikan(
+      mataPraktikumId: mataPraktikumId,
+      nim: '2024010002',
+      nama: 'Gita',
+    );
+
+    await tambahPraktikan(
+      mataPraktikumId: mataPraktikumId,
+      nim: '2024010003',
+      nama: 'Amalia',
+    );
+  }
 }
