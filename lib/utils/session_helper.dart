@@ -1,5 +1,21 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
+class SessionData {
+  final int akunId;
+  final String username;
+  final String role;
+  final int? praktikanId;
+
+  const SessionData({
+    required this.akunId,
+    required this.username,
+    required this.role,
+    this.praktikanId,
+  });
+
+  String get nama => username;
+}
+
 class SessionHelper {
   // Menyimpan data login
   static Future<void> saveSession({
@@ -53,6 +69,18 @@ class SessionHelper {
     final prefs = await SharedPreferences.getInstance();
 
     return prefs.getInt('praktikanId');
+  }
+
+  static Future<SessionData?> ambil() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!(prefs.getBool('isLogin') ?? false)) return null;
+
+    return SessionData(
+      akunId: prefs.getInt('akunId') ?? 0,
+      username: prefs.getString('username') ?? 'Pengguna',
+      role: prefs.getString('role') ?? 'praktikan',
+      praktikanId: prefs.getInt('praktikanId'),
+    );
   }
 
   // Menghapus session saat logout

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../database/database_helper.dart';
+import 'home_screen.dart';
 import '../utils/session_helper.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -60,25 +61,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (!mounted) return;
 
-      if (akun['role'] == 'aslab') {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (_) => const HalamanSementara(
-              judul: 'Home Aslab',
-            ),
-          ),
-        );
-      } else {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (_) => const HalamanSementara(
-              judul: 'Home Praktikan',
-            ),
-          ),
-        );
-      }
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const MainShell()),
+      );
     } finally {
       if (mounted) {
         setState(() {
@@ -166,28 +152,3 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
-// Sementara untuk mengetes login.
-// Nanti diganti dengan Home Aslab dan Home Praktikan.
-class HalamanSementara extends StatelessWidget {
-  final String judul;
-
-  const HalamanSementara({
-    super.key,
-    required this.judul,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(judul),
-      ),
-      body: Center(
-        child: Text(
-          'Berhasil masuk ke $judul',
-          style: const TextStyle(fontSize: 20),
-        ),
-      ),
-    );
-  }
-}

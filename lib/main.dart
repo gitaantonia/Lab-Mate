@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'screens/login_screen.dart';
+import 'screens/home_screen.dart';
+import 'utils/session_helper.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,7 +24,24 @@ class LabMateApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: const LoginScreen(),
+      home: const SessionGate(),
+    );
+  }
+}
+
+class SessionGate extends StatelessWidget {
+  const SessionGate({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<bool>(
+      future: SessionHelper.isLogin(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+        }
+        return snapshot.data! ? const MainShell() : const LoginScreen();
+      },
     );
   }
 }
