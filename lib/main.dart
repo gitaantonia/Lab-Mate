@@ -19,9 +19,7 @@ class LabMateApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'LabMate',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blue,
-        ),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
       home: const SessionGate(),
@@ -34,13 +32,22 @@ class SessionGate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<bool>(
-      future: SessionHelper.isLogin(),
+    return FutureBuilder<SessionData?>(
+      future: SessionHelper.ambil(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
         }
-        return snapshot.data! ? const MainShell() : const LoginScreen();
+
+        final session = snapshot.data;
+        if (session == null ||
+            (session.role != 'aslab' && session.role != 'praktikan')) {
+          return const LoginScreen();
+        }
+
+        return MainShell(role: session.role);
       },
     );
   }

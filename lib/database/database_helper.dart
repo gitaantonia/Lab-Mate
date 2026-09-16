@@ -128,10 +128,7 @@ class DBHelper {
   // LOGIN
   // =========================================================
 
-  Future<Map<String, dynamic>?> login(
-    String username,
-    String password,
-  ) async {
+  Future<Map<String, dynamic>?> login(String username, String password) async {
     final db = await database;
 
     final result = await db.query(
@@ -155,31 +152,21 @@ class DBHelper {
   Future<int> tambahMataPraktikum(String nama) async {
     final db = await database;
 
-    return await db.insert('mata_praktikum', {
-      'nama': nama,
-    });
+    return await db.insert('mata_praktikum', {'nama': nama});
   }
 
   Future<List<Map<String, dynamic>>> getMataPraktikum() async {
     final db = await database;
 
-    return await db.query(
-      'mata_praktikum',
-      orderBy: 'id ASC',
-    );
+    return await db.query('mata_praktikum', orderBy: 'id ASC');
   }
 
-  Future<int> updateMataPraktikum(
-    int id,
-    String nama,
-  ) async {
+  Future<int> updateMataPraktikum(int id, String nama) async {
     final db = await database;
 
     return await db.update(
       'mata_praktikum',
-      {
-        'nama': nama,
-      },
+      {'nama': nama},
       where: 'id = ?',
       whereArgs: [id],
     );
@@ -188,11 +175,7 @@ class DBHelper {
   Future<int> hapusMataPraktikum(int id) async {
     final db = await database;
 
-    return await db.delete(
-      'mata_praktikum',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    return await db.delete('mata_praktikum', where: 'id = ?', whereArgs: [id]);
   }
 
   // =========================================================
@@ -235,10 +218,7 @@ class DBHelper {
 
     return await db.update(
       'komponen_bobot',
-      {
-        'nama_komponen': namaKomponen,
-        'bobot': bobot,
-      },
+      {'nama_komponen': namaKomponen, 'bobot': bobot},
       where: 'id = ?',
       whereArgs: [id],
     );
@@ -247,11 +227,7 @@ class DBHelper {
   Future<int> hapusKomponenBobot(int id) async {
     final db = await database;
 
-    return await db.delete(
-      'komponen_bobot',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    return await db.delete('komponen_bobot', where: 'id = ?', whereArgs: [id]);
   }
 
   // =========================================================
@@ -285,10 +261,7 @@ class DBHelper {
   Future<List<Map<String, dynamic>>> getPraktikan() async {
     final db = await database;
 
-    return await db.query(
-      'praktikan',
-      orderBy: 'id ASC',
-    );
+    return await db.query('praktikan', orderBy: 'id ASC');
   }
 
   Future<List<Map<String, dynamic>>> getPraktikanByMataPraktikum(
@@ -311,25 +284,27 @@ class DBHelper {
   }) async {
     final db = await database;
 
-    return await db.update(
+    final updatedRows = await db.update(
       'praktikan',
-      {
-        'nim': nim,
-        'nama': nama,
-      },
+      {'nim': nim, 'nama': nama},
       where: 'id = ?',
       whereArgs: [id],
     );
+
+    await db.update(
+      'akun',
+      {'username': nim},
+      where: 'praktikan_id = ?',
+      whereArgs: [id],
+    );
+
+    return updatedRows;
   }
 
   Future<int> hapusPraktikan(int id) async {
     final db = await database;
 
-    return await db.delete(
-      'praktikan',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    return await db.delete('praktikan', where: 'id = ?', whereArgs: [id]);
   }
 
   // =========================================================
@@ -343,23 +318,18 @@ class DBHelper {
   }) async {
     final db = await database;
 
-    return await db.insert(
-      'nilai_komponen',
-      {
-        'praktikan_id': praktikanId,
-        'komponen_bobot_id': komponenBobotId,
-        'skor': skor,
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    return await db.insert('nilai_komponen', {
+      'praktikan_id': praktikanId,
+      'komponen_bobot_id': komponenBobotId,
+      'skor': skor,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
-  Future<List<Map<String, dynamic>>> getNilaiPraktikan(
-    int praktikanId,
-  ) async {
+  Future<List<Map<String, dynamic>>> getNilaiPraktikan(int praktikanId) async {
     final db = await database;
 
-    return await db.rawQuery('''
+    return await db.rawQuery(
+      '''
       SELECT
         nilai_komponen.id,
         nilai_komponen.skor,
@@ -370,7 +340,9 @@ class DBHelper {
         ON nilai_komponen.komponen_bobot_id = komponen_bobot.id
       WHERE nilai_komponen.praktikan_id = ?
       ORDER BY komponen_bobot.id ASC
-    ''', [praktikanId]);
+    ''',
+      [praktikanId],
+    );
   }
 
   // =========================================================
@@ -385,9 +357,7 @@ class DBHelper {
 
     return await db.update(
       'praktikan',
-      {
-        'nilai_akhir': nilaiAkhir,
-      },
+      {'nilai_akhir': nilaiAkhir},
       where: 'id = ?',
       whereArgs: [praktikanId],
     );
@@ -405,9 +375,7 @@ class DBHelper {
 
     return await db.update(
       'praktikan',
-      {
-        'kelompok': kelompok,
-      },
+      {'kelompok': kelompok},
       where: 'id = ?',
       whereArgs: [praktikanId],
     );

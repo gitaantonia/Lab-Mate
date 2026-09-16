@@ -33,6 +33,8 @@ class SessionHelper {
 
     if (praktikanId != null) {
       await prefs.setInt('praktikanId', praktikanId);
+    } else {
+      await prefs.remove('praktikanId');
     }
   }
 

@@ -8,12 +8,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:lab_mate/main.dart';
+import 'package:lab_mate/screens/login_screen.dart';
 
 void main() {
-  testWidgets('LabMateApp smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const LabMateApp());
-    expect(find.byType(LabMateApp), findsOneWidget);
+  testWidgets('menampilkan halaman login', (WidgetTester tester) async {
+    await tester.pumpWidget(const MaterialApp(home: LoginScreen()));
+
+    expect(find.text('Login LabMate'), findsOneWidget);
+    expect(find.text('Username'), findsOneWidget);
   });
 }
