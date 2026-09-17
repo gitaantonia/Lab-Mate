@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-// [AKSES DATABASE - READ ONLY] Impor DBHelper untuk mengambil tanggal lahir praktikan jika tersimpan di SQLite
+import 'package:shared_preferences/shared_preferences.dart';
+// [AKSES DATABASE - READ ONLY / UPDATE TANGGAL LAHIR] Impor DBHelper untuk mengelola tanggal lahir praktikan di SQLite
 import '../database/database_helper.dart';
 import '../utils/kalender_helper.dart';
 import '../utils/session_helper.dart';
@@ -29,11 +30,18 @@ class _ProfilScreenState extends State<ProfilScreen> {
   Future<void> _loadProfil() async {
     setState(() => isLoading = true);
     final data = await SessionHelper.ambil();
+    final prefs = await SharedPreferences.getInstance();
 
-    String tglLahir = '2001-01-01'; // Default acuan untuk demo jika belum diatur
+    String tglLahir = '2001-01-01'; // Default acuan
 
-    if (data?.praktikanId != null) {
-      // [AKSES DATABASE - READ ONLY] Mengambil data detail praktikan dari SQLite untuk tanggal lahir
+    // Cek penyimpanan kustom per akun di SharedPreferences
+    final prefKey = 'tgl_lahir_${data?.username}';
+    final savedPref = prefs.getString(prefKey);
+
+    if (savedPref != null && savedPref.isNotEmpty) {
+      tglLahir = savedPref;
+    } else if (data?.praktikanId != null) {
+      // [AKSES DATABASE - READ ONLY] Mengambil tanggal lahir praktikan tersimpan dari SQLite
       try {
         final listP = await DBHelper.instance.getPraktikan();
         final p = listP.firstWhere(
@@ -69,6 +77,56 @@ class _ProfilScreenState extends State<ProfilScreen> {
         }
         isLoading = false;
       });
+    }
+  }
+
+  Future<void> _ubahTanggalLahir(BuildContext context) async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: tanggalLahirDate ?? DateTime(2001, 1, 1),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+      helpText: 'PILIH TANGGAL LAHIR SAYA',
+    );
+
+    if (picked != null) {
+      final newTglStr =
+          '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('tgl_lahir_${session?.username}', newTglStr);
+
+      if (session?.praktikanId != null) {
+        // [AKSES DATABASE - UPDATE TANGGAL LAHIR EXISTINGS] Meng-update data tanggal lahir praktikan yang bersangkutan
+        try {
+          final listP = await DBHelper.instance.getPraktikan();
+          final p = listP.firstWhere((item) => item['id'] == session!.praktikanId, orElse: () => {});
+          if (p.isNotEmpty) {
+            await DBHelper.instance.updatePraktikan(
+              id: session!.praktikanId!,
+              mataPraktikumId: p['mata_praktikum_id'] as int? ?? 1,
+              nim: p['nim'] as String? ?? session!.username,
+              nama: p['nama'] as String? ?? session!.nama,
+              tanggalLahir: newTglStr,
+            );
+          }
+        } catch (e) {
+          debugPrint('Gagal update tanggal lahir praktikan di DB: $e');
+        }
+      }
+
+      if (mounted) {
+        setState(() {
+          tanggalLahirStr = newTglStr;
+          tanggalLahirDate = picked;
+          hasilUmur = hitungUmur(picked);
+          hasilWeton = hitungWeton(picked);
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Tanggal lahir berhasil diperbarui: $newTglStr')),
+        );
+      }
     }
   }
 
@@ -170,18 +228,43 @@ class _ProfilScreenState extends State<ProfilScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Icon(Icons.cake, color: Colors.pinkAccent),
-                              const SizedBox(width: 8),
-                              const Text(
-                                'Kalkulator Umur Diri Sendiri',
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                              const Row(
+                                children: [
+                                  Icon(Icons.cake, color: Colors.pinkAccent),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'Kalkulator Umur Diri Sendiri',
+                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                  ),
+                                ],
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.edit_calendar, color: Colors.blue),
+                                tooltip: 'Ubah Tanggal Lahir',
+                                onPressed: () => _ubahTanggalLahir(context),
                               ),
                             ],
                           ),
-                          const Divider(height: 24),
+                          const Divider(height: 16),
 
-                          _infoRow('Tanggal Lahir', tanggalLahirStr ?? '-'),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('Tanggal Lahir', style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
+                              Row(
+                                children: [
+                                  Text(tanggalLahirStr ?? '-', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                                  const SizedBox(width: 6),
+                                  InkWell(
+                                    onTap: () => _ubahTanggalLahir(context),
+                                    child: const Text('(Ubah)', style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 12)),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                           const SizedBox(height: 10),
 
                           if (hasilWeton != null) ...[
