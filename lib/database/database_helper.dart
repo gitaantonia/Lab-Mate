@@ -26,12 +26,21 @@ class DBHelper {
 
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onConfigure: (db) async {
         await db.execute('PRAGMA foreign_keys = ON');
       },
       onCreate: _createDB,
+      onUpgrade: _onUpgrade,
     );
+  }
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('''
+      ALTER TABLE praktikan
+      ADD COLUMN tanggal_lahir TEXT
+    ''');
+    }
   }
 
   // Membuat semua tabel
@@ -65,17 +74,18 @@ class DBHelper {
     // 3. PRAKTIKAN
     // =========================
     await db.execute('''
-      CREATE TABLE praktikan (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        mata_praktikum_id INTEGER NOT NULL,
-        nim TEXT NOT NULL UNIQUE,
-        nama TEXT NOT NULL,
-        kelompok TEXT DEFAULT '-',
-        nilai_akhir REAL DEFAULT 0.0,
-        FOREIGN KEY (mata_praktikum_id)
-          REFERENCES mata_praktikum(id)
-          ON DELETE CASCADE
-      )
+   CREATE TABLE praktikan (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  mata_praktikum_id INTEGER NOT NULL,
+  nim TEXT NOT NULL UNIQUE,
+  nama TEXT NOT NULL,
+  tanggal_lahir TEXT NOT NULL,
+  kelompok TEXT DEFAULT '-',
+  nilai_akhir REAL DEFAULT 0.0,
+  FOREIGN KEY (mata_praktikum_id)
+    REFERENCES mata_praktikum(id)
+    ON DELETE CASCADE
+)
     ''');
 
     // =========================
