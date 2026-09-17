@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../database/database_helper.dart';
 import 'home_screen.dart';
 import 'home_aslab_screen.dart';
-import 'home_praktikan_screen.dart';
+import 'home_praktikan.screen.dart';
 import '../utils/session_helper.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -17,6 +17,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
+  String selectedRole = 'aslab';
   bool isLoading = false;
   bool obscurePassword = true;
 
@@ -36,6 +37,8 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
+      // Pastikan akun demo tersedia sebelum validasi login pertama.
+      await DBHelper.instance.siapkanAkunPraktikanDemo();
       final akun = await DBHelper.instance.login(username, password);
 
       if (akun == null) {
@@ -46,7 +49,7 @@ class _LoginScreenState extends State<LoginScreen> {
         );
         return;
       }
-            // Pastikan role pilihan sesuai dengan role akun
+      // Pastikan role pilihan sesuai dengan role akun
       if (akun['role'] != selectedRole) {
         if (!mounted) return;
 
@@ -73,12 +76,12 @@ class _LoginScreenState extends State<LoginScreen> {
       if (akun['role'] == 'aslab') {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const HomeAslabScreen()),
+          MaterialPageRoute(builder: (_) => const MainShell(role: 'aslab')),
         );
       } else if (akun['role'] == 'praktikan') {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const HomePraktikanScreen()),
+          MaterialPageRoute(builder: (_) => const MainShell(role: 'praktikan')),
         );
       }
     } catch (e) {
@@ -103,7 +106,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
- @override
+  @override
   Widget build(BuildContext context) {
     const Color primaryBlue = Color(0xFF1565C0);
     const Color lightBlue = Color(0xFFE3F2FD);

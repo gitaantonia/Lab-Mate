@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -13,6 +14,12 @@ class DBHelper {
 
   // Mengambil database
   Future<Database> get database async {
+    if (kIsWeb) {
+      throw UnsupportedError(
+        'SQLite tidak didukung di mode web. Jalankan aplikasi di Android/Windows/Linux/macOS, atau ganti penyimpanan ke SharedPreferences/API.',
+      );
+    }
+
     if (_database != null) return _database!;
 
     _database = await _initDB('labmate.db');
@@ -34,6 +41,7 @@ class DBHelper {
       onUpgrade: _onUpgrade,
     );
   }
+
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
       await db.execute('''
@@ -139,20 +147,162 @@ class DBHelper {
   // =========================================================
 
   Future<Map<String, dynamic>?> login(String username, String password) async {
+    await siapkanAkunPraktikanDemo();
     final db = await database;
+    final normalizedUsername = username.trim();
+    final normalizedPassword = password.trim();
 
     final result = await db.query(
       'akun',
       where: 'username = ? AND password = ?',
-      whereArgs: [username, password],
+      whereArgs: [normalizedUsername, normalizedPassword],
       limit: 1,
     );
 
-    if (result.isNotEmpty) {
-      return result.first;
+    if (result.isNotEmpty) return result.first;
+    if (normalizedPassword != '12345') return null;
+
+    final praktikan = await db.query(
+      'praktikan',
+      where: 'nim = ?',
+      whereArgs: [normalizedUsername],
+      limit: 1,
+    );
+    if (praktikan.isEmpty) return null;
+
+    final praktikanId = praktikan.first['id'] as int;
+    final akun = await db.query(
+      'akun',
+      where: 'praktikan_id = ? OR username = ?',
+      whereArgs: [praktikanId, normalizedUsername],
+      limit: 1,
+    );
+
+    if (akun.isNotEmpty) {
+      await db.update(
+        'akun',
+        {
+          'username': normalizedUsername,
+          'password': '12345',
+          'role': 'praktikan',
+          'praktikan_id': praktikanId,
+        },
+        where: 'id = ?',
+        whereArgs: [akun.first['id'] as int],
+      );
+      return {
+        ...akun.first,
+        'username': normalizedUsername,
+        'password': '12345',
+        'role': 'praktikan',
+        'praktikan_id': praktikanId,
+      };
     }
 
-    return null;
+    final akunId = await db.insert('akun', {
+      'username': normalizedUsername,
+      'password': '12345',
+      'role': 'praktikan',
+      'praktikan_id': praktikanId,
+    });
+    return {
+      'id': akunId,
+      'username': normalizedUsername,
+      'password': '12345',
+      'role': 'praktikan',
+      'praktikan_id': praktikanId,
+    };
+  }
+
+  Future<void> sinkronkanAkunPraktikan() async {
+    final db = await database;
+    final praktikan = await getPraktikan();
+
+    for (final data in praktikan) {
+      final praktikanId = data['id'] as int;
+      final nim = data['nim'] as String;
+      final akunByPraktikan = await db.query(
+        'akun',
+        where: 'praktikan_id = ?',
+        whereArgs: [praktikanId],
+        limit: 1,
+      );
+
+      if (akunByPraktikan.isNotEmpty) {
+        await db.update(
+          'akun',
+          {'username': nim, 'password': '12345', 'role': 'praktikan'},
+          where: 'id = ?',
+          whereArgs: [akunByPraktikan.first['id'] as int],
+        );
+        continue;
+      }
+
+      final akunByUsername = await db.query(
+        'akun',
+        where: 'username = ?',
+        whereArgs: [nim],
+        limit: 1,
+      );
+
+      if (akunByUsername.isNotEmpty) {
+        await db.update(
+          'akun',
+          {
+            'password': '12345',
+            'role': 'praktikan',
+            'praktikan_id': praktikanId,
+          },
+          where: 'id = ?',
+          whereArgs: [akunByUsername.first['id'] as int],
+        );
+      } else {
+        await db.insert('akun', {
+          'username': nim,
+          'password': '12345',
+          'role': 'praktikan',
+          'praktikan_id': praktikanId,
+        });
+      }
+    }
+  }
+
+  Future<void> siapkanAkunPraktikanDemo() async {
+    final mataPraktikum = await getMataPraktikum();
+    int mataPraktikumId;
+
+    if (mataPraktikum.isEmpty) {
+      mataPraktikumId = await tambahMataPraktikum('Pemrograman Mobile');
+    } else {
+      mataPraktikumId = mataPraktikum.first['id'] as int;
+    }
+
+    const dataDemo = [
+      ('2024010001', 'Serena', '2001-01-01'),
+      ('2024010002', 'Gita', '2001-02-02'),
+      ('2024010003', 'Amalia', '2001-03-03'),
+    ];
+
+    final db = await database;
+    for (final data in dataDemo) {
+      final existing = await db.query(
+        'praktikan',
+        where: 'nim = ?',
+        whereArgs: [data.$1],
+        limit: 1,
+      );
+
+      if (existing.isEmpty) {
+        await tambahPraktikan(
+          mataPraktikumId: mataPraktikumId,
+          nim: data.$1,
+          nama: data.$2,
+          tanggalLahir: data.$3,
+        );
+      }
+    }
+
+    await sinkronkanAkunPraktikan();
   }
 
   // =========================================================
@@ -248,6 +398,7 @@ class DBHelper {
     required int mataPraktikumId,
     required String nim,
     required String nama,
+    required String tanggalLahir,
   }) async {
     final db = await database;
 
@@ -255,6 +406,7 @@ class DBHelper {
       'mata_praktikum_id': mataPraktikumId,
       'nim': nim,
       'nama': nama,
+      'tanggal_lahir': tanggalLahir,
     });
 
     // Membuat akun praktikan otomatis
@@ -289,14 +441,21 @@ class DBHelper {
 
   Future<int> updatePraktikan({
     required int id,
+    required int mataPraktikumId,
     required String nim,
     required String nama,
+    required String tanggalLahir,
   }) async {
     final db = await database;
 
     final updatedRows = await db.update(
       'praktikan',
-      {'nim': nim, 'nama': nama},
+      {
+        'mata_praktikum_id': mataPraktikumId,
+        'nim': nim,
+        'nama': nama,
+        'tanggal_lahir': tanggalLahir,
+      },
       where: 'id = ?',
       whereArgs: [id],
     );
@@ -390,21 +549,24 @@ class DBHelper {
       whereArgs: [praktikanId],
     );
   }
-    // =========================================================
+  // =========================================================
   // DATA DUMMY UNTUK TESTING KOMPUTASI
   // =========================================================
 
   Future<void> tambahDataDummy() async {
-    // Cek apakah data dummy sudah ada
+    // Cek apakah akun demo sudah tersedia, termasuk pada database lama.
     final mataPraktikum = await getMataPraktikum();
+    final praktikan = await getPraktikan();
 
-    if (mataPraktikum.isNotEmpty) {
+    final demoSudahAda = praktikan.any((item) => item['nim'] == '2024010001');
+
+    if (mataPraktikum.isNotEmpty && demoSudahAda) {
+      await _pastikanAkunPraktikanDemo(praktikan);
       return;
     }
 
     // 1. Tambah Mata Praktikum
-    final mataPraktikumId =
-        await tambahMataPraktikum('Pemrograman Mobile');
+    final mataPraktikumId = await tambahMataPraktikum('Pemrograman Mobile');
 
     // 2. Tambah Komponen Nilai
     await tambahKomponenBobot(
@@ -430,18 +592,57 @@ class DBHelper {
       mataPraktikumId: mataPraktikumId,
       nim: '2024010001',
       nama: 'Serena',
+      tanggalLahir: '2001-01-01',
     );
 
     await tambahPraktikan(
       mataPraktikumId: mataPraktikumId,
       nim: '2024010002',
       nama: 'Gita',
+      tanggalLahir: '2001-02-02',
     );
 
     await tambahPraktikan(
       mataPraktikumId: mataPraktikumId,
       nim: '2024010003',
       nama: 'Amalia',
+      tanggalLahir: '2001-03-03',
     );
+  }
+
+  Future<void> _pastikanAkunPraktikanDemo(
+    List<Map<String, dynamic>> praktikan,
+  ) async {
+    final db = await database;
+    const demoNim = {'2024010001', '2024010002', '2024010003'};
+
+    for (final data in praktikan) {
+      final nim = data['nim'] as String;
+      if (!demoNim.contains(nim)) continue;
+
+      final praktikanId = data['id'] as int;
+      final akun = await db.query(
+        'akun',
+        where: 'praktikan_id = ?',
+        whereArgs: [praktikanId],
+        limit: 1,
+      );
+
+      if (akun.isEmpty) {
+        await db.insert('akun', {
+          'username': nim,
+          'password': '12345',
+          'role': 'praktikan',
+          'praktikan_id': praktikanId,
+        });
+      } else {
+        await db.update(
+          'akun',
+          {'username': nim, 'password': '12345', 'role': 'praktikan'},
+          where: 'id = ?',
+          whereArgs: [akun.first['id'] as int],
+        );
+      }
+    }
   }
 }

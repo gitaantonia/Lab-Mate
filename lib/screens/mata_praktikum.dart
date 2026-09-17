@@ -1,1 +1,1 @@
-export 'mata_praktikum_screen.dart';
+export 'mata_praktikan_screen.dart';

@@ -40,7 +40,7 @@ class _NilaiInputScreenState extends State<NilaiInputScreen> {
     try {
       await dbHelper.tambahDataDummy();
       final data = await dbHelper.getMataPraktikum();
-      
+
       print('DATA MATA PRAKTIKUM: $data');
 
       if (!mounted) return;
@@ -52,9 +52,7 @@ class _NilaiInputScreenState extends State<NilaiInputScreen> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Gagal mengambil mata praktikum: $e'),
-        ),
+        SnackBar(content: Text('Gagal mengambil mata praktikum: $e')),
       );
     } finally {
       if (mounted) {
@@ -71,8 +69,7 @@ class _NilaiInputScreenState extends State<NilaiInputScreen> {
     });
 
     try {
-      final data =
-          await dbHelper.getPraktikanByMataPraktikum(mataPraktikumId);
+      final data = await dbHelper.getPraktikanByMataPraktikum(mataPraktikumId);
 
       if (!mounted) return;
 
@@ -86,9 +83,7 @@ class _NilaiInputScreenState extends State<NilaiInputScreen> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Gagal mengambil data praktikan: $e'),
-        ),
+        SnackBar(content: Text('Gagal mengambil data praktikan: $e')),
       );
     } finally {
       if (mounted) {
@@ -126,9 +121,7 @@ class _NilaiInputScreenState extends State<NilaiInputScreen> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Gagal mengambil komponen nilai: $e'),
-        ),
+        SnackBar(content: Text('Gagal mengambil komponen nilai: $e')),
       );
     }
   }
@@ -160,9 +153,7 @@ class _NilaiInputScreenState extends State<NilaiInputScreen> {
 
       // Hitung nilai akhir dari nilai yang sudah tersimpan.
       if (data.isNotEmpty) {
-        final hasil = KomputasiHelper.hitungNilaiAkhir(
-          nilaiKomponen: data,
-        );
+        final hasil = KomputasiHelper.hitungNilaiAkhir(nilaiKomponen: data);
 
         if (mounted) {
           setState(() {
@@ -173,11 +164,9 @@ class _NilaiInputScreenState extends State<NilaiInputScreen> {
     } catch (e) {
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Gagal mengambil nilai: $e'),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Gagal mengambil nilai: $e')));
     }
   }
 
@@ -230,9 +219,7 @@ class _NilaiInputScreenState extends State<NilaiInputScreen> {
     );
 
     if (!bobotValid) {
-      _showMessage(
-        'Total bobot harus 100%',
-      );
+      _showMessage('Total bobot harus 100%');
       return;
     }
 
@@ -245,25 +232,19 @@ class _NilaiInputScreenState extends State<NilaiInputScreen> {
       final skorText = skorControllers[id]?.text.trim() ?? '';
 
       if (skorText.isEmpty) {
-        _showMessage(
-          'Skor ${komponen['nama_komponen']} tidak boleh kosong',
-        );
+        _showMessage('Skor ${komponen['nama_komponen']} tidak boleh kosong');
         return;
       }
 
       final skor = double.tryParse(skorText);
 
       if (skor == null) {
-        _showMessage(
-          'Skor ${komponen['nama_komponen']} tidak valid',
-        );
+        _showMessage('Skor ${komponen['nama_komponen']} tidak valid');
         return;
       }
 
       if (!KomputasiHelper.validasiSkor(skor)) {
-        _showMessage(
-          'Skor ${komponen['nama_komponen']} harus antara 0-100',
-        );
+        _showMessage('Skor ${komponen['nama_komponen']} harus antara 0-100');
         return;
       }
 
@@ -287,17 +268,14 @@ class _NilaiInputScreenState extends State<NilaiInputScreen> {
       }
 
       // Mengambil kembali nilai dari database.
-      final nilaiData =
-          await dbHelper.getNilaiPraktikan(selectedPraktikanId!);
+      final nilaiData = await dbHelper.getNilaiPraktikan(selectedPraktikanId!);
 
       // Menghitung nilai akhir.
-      final hasilNilaiAkhir =
-          KomputasiHelper.hitungNilaiAkhir(
+      final hasilNilaiAkhir = KomputasiHelper.hitungNilaiAkhir(
         nilaiKomponen: nilaiData,
       );
 
-      final hasilBulat =
-          KomputasiHelper.bulatkanNilai(hasilNilaiAkhir);
+      final hasilBulat = KomputasiHelper.bulatkanNilai(hasilNilaiAkhir);
 
       // Menyimpan nilai akhir ke database.
       await dbHelper.updateNilaiAkhir(
@@ -323,11 +301,9 @@ class _NilaiInputScreenState extends State<NilaiInputScreen> {
     } catch (e) {
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Gagal menyimpan nilai: $e'),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Gagal menyimpan nilai: $e')));
     } finally {
       if (mounted) {
         setState(() {
@@ -338,11 +314,9 @@ class _NilaiInputScreenState extends State<NilaiInputScreen> {
   }
 
   void _showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-      ),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -357,14 +331,9 @@ class _NilaiInputScreenState extends State<NilaiInputScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Input Nilai'),
-        elevation: 0,
-      ),
+      appBar: AppBar(title: const Text('Input Nilai'), elevation: 0),
       body: isLoading
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
+          ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -377,32 +346,24 @@ class _NilaiInputScreenState extends State<NilaiInputScreen> {
                     child: Padding(
                       padding: const EdgeInsets.all(12),
                       child: Column(
-                        crossAxisAlignment:
-                            CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
                             'Mata Praktikum',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 8),
                           DropdownButton<int>(
                             isExpanded: true,
-                            hint: const Text(
-                              'Pilih Mata Praktikum',
-                            ),
+                            hint: const Text('Pilih Mata Praktikum'),
                             value: selectedMataPraktikumId,
                             items: mataPraktikumList.map((mp) {
                               return DropdownMenuItem<int>(
                                 value: mp['id'] as int,
-                                child: Text(
-                                  mp['nama'].toString(),
-                                ),
+                                child: Text(mp['nama'].toString()),
                               );
                             }).toList(),
-                            onChanged:
-                                _handleMataPraktikumChanged,
+                            onChanged: _handleMataPraktikumChanged,
                           ),
                         ],
                       ),
@@ -419,32 +380,24 @@ class _NilaiInputScreenState extends State<NilaiInputScreen> {
                       child: Padding(
                         padding: const EdgeInsets.all(12),
                         child: Column(
-                          crossAxisAlignment:
-                              CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text(
                               'Praktikan',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 8),
                             DropdownButton<int>(
                               isExpanded: true,
-                              hint: const Text(
-                                'Pilih Praktikan',
-                              ),
+                              hint: const Text('Pilih Praktikan'),
                               value: selectedPraktikanId,
                               items: praktikanList.map((p) {
                                 return DropdownMenuItem<int>(
                                   value: p['id'] as int,
-                                  child: Text(
-                                    '${p['nim']} - ${p['nama']}',
-                                  ),
+                                  child: Text('${p['nim']} - ${p['nama']}'),
                                 );
                               }).toList(),
-                              onChanged:
-                                  _handlePraktikanChanged,
+                              onChanged: _handlePraktikanChanged,
                             ),
                           ],
                         ),
@@ -462,8 +415,7 @@ class _NilaiInputScreenState extends State<NilaiInputScreen> {
                       child: Padding(
                         padding: const EdgeInsets.all(12),
                         child: Column(
-                          crossAxisAlignment:
-                              CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text(
                               'Input Skor (0-100)',
@@ -474,58 +426,43 @@ class _NilaiInputScreenState extends State<NilaiInputScreen> {
                             ),
                             const SizedBox(height: 12),
 
-                            ...List.generate(
-                              komponenBobotList.length,
-                              (index) {
-                                final komponen =
-                                    komponenBobotList[index];
+                            ...List.generate(komponenBobotList.length, (index) {
+                              final komponen = komponenBobotList[index];
 
-                                final id =
-                                    komponen['id'] as int;
+                              final id = komponen['id'] as int;
 
-                                final bobot =
-                                    (komponen['bobot'] as num?)
-                                            ?.toDouble() ??
-                                        0.0;
+                              final bobot =
+                                  (komponen['bobot'] as num?)?.toDouble() ??
+                                  0.0;
 
-                                return Padding(
-                                  padding:
-                                      const EdgeInsets.only(
-                                    bottom: 12,
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        '${komponen['nama_komponen']} '
-                                        '(${bobot.toStringAsFixed(0)}%)',
-                                        style: const TextStyle(
-                                          fontWeight:
-                                              FontWeight.w500,
-                                        ),
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 12),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '${komponen['nama_komponen']} '
+                                      '(${bobot.toStringAsFixed(0)}%)',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w500,
                                       ),
-                                      const SizedBox(height: 4),
-                                      TextField(
-                                        controller:
-                                            skorControllers[id],
-                                        keyboardType:
-                                            const TextInputType
-                                                .numberWithOptions(
-                                          decimal: true,
-                                        ),
-                                        decoration:
-                                            const InputDecoration(
-                                          hintText: 'Masukkan skor',
-                                          border:
-                                              OutlineInputBorder(),
-                                        ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    TextField(
+                                      controller: skorControllers[id],
+                                      keyboardType:
+                                          const TextInputType.numberWithOptions(
+                                            decimal: true,
+                                          ),
+                                      decoration: const InputDecoration(
+                                        hintText: 'Masukkan skor',
+                                        border: OutlineInputBorder(),
                                       ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }),
                           ],
                         ),
                       ),
@@ -560,9 +497,7 @@ class _NilaiInputScreenState extends State<NilaiInputScreen> {
                             const SizedBox(height: 4),
                             Text(
                               'Grade: ${KomputasiHelper.tentukanGrade(nilaiAkhir!)}',
-                              style: const TextStyle(
-                                fontSize: 16,
-                              ),
+                              style: const TextStyle(fontSize: 16),
                             ),
                           ],
                         ),
@@ -581,10 +516,7 @@ class _NilaiInputScreenState extends State<NilaiInputScreen> {
                       icon: const Icon(Icons.save),
                       label: const Text('Simpan Nilai'),
                       style: ElevatedButton.styleFrom(
-                        padding:
-                            const EdgeInsets.symmetric(
-                          vertical: 14,
-                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
                     ),
 
@@ -598,68 +530,52 @@ class _NilaiInputScreenState extends State<NilaiInputScreen> {
                         const SizedBox(height: 16),
                         Card(
                           child: Padding(
-                            padding:
-                                const EdgeInsets.all(12),
+                            padding: const EdgeInsets.all(12),
                             child: Column(
-                              crossAxisAlignment:
-                                  CrossAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const Text(
                                   'Nilai Tersimpan',
                                   style: TextStyle(
-                                    fontWeight:
-                                        FontWeight.bold,
+                                    fontWeight: FontWeight.bold,
                                     fontSize: 16,
                                   ),
                                 ),
                                 const SizedBox(height: 8),
 
-                                ...nilaiExistingList.map(
-                                  (nilai) {
-                                    final skor =
-                                        (nilai['skor']
-                                                    as num?)
-                                                ?.toDouble() ??
-                                            0.0;
+                                ...nilaiExistingList.map((nilai) {
+                                  final skor =
+                                      (nilai['skor'] as num?)?.toDouble() ??
+                                      0.0;
 
-                                    final bobot =
-                                        (nilai['bobot']
-                                                    as num?)
-                                                ?.toDouble() ??
-                                            0.0;
+                                  final bobot =
+                                      (nilai['bobot'] as num?)?.toDouble() ??
+                                      0.0;
 
-                                    return Padding(
-                                      padding:
-                                          const EdgeInsets
-                                              .symmetric(
-                                        vertical: 5,
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment
-                                                .spaceBetween,
-                                        children: [
-                                          Expanded(
-                                            child: Text(
-                                              '${nilai['nama_komponen']} '
-                                              '(${bobot.toStringAsFixed(0)}%)',
-                                            ),
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 5,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            '${nilai['nama_komponen']} '
+                                            '(${bobot.toStringAsFixed(0)}%)',
                                           ),
-                                          Text(
-                                            skor
-                                                .toStringAsFixed(2),
-                                            style:
-                                                const TextStyle(
-                                              fontWeight:
-                                                  FontWeight
-                                                      .bold,
-                                            ),
+                                        ),
+                                        Text(
+                                          skor.toStringAsFixed(2),
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
                                           ),
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }),
                               ],
                             ),
                           ),

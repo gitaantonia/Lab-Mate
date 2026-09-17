@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import '../../database/database_helper.dart';
 
 class MataPraktikumScreen extends StatefulWidget {
-  const MataPraktikumScreen({super.key});
+  final bool readOnly;
+
+  const MataPraktikumScreen({super.key, this.readOnly = false});
 
   @override
   State<MataPraktikumScreen> createState() => _MataPraktikumScreenState();
@@ -69,11 +71,22 @@ class _MataPraktikumScreenState extends State<MataPraktikumScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Mata Praktikum')),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => bukaForm(),
-        child: const Icon(Icons.add),
+      backgroundColor: const Color(0xFFF3F7FF),
+      appBar: AppBar(
+        title: Text(
+          widget.readOnly ? 'Daftar Mata Praktikum' : 'Mata Praktikum',
+        ),
+        centerTitle: true,
+        elevation: 0,
+        backgroundColor: Colors.transparent,
       ),
+      floatingActionButton: widget.readOnly
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: () => bukaForm(),
+              icon: const Icon(Icons.add_rounded),
+              label: const Text('Tambah'),
+            ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: mataPraktikum,
         builder: (context, snapshot) {
@@ -85,28 +98,83 @@ class _MataPraktikumScreenState extends State<MataPraktikumScreen> {
           }
           final data = snapshot.data ?? [];
           if (data.isEmpty) {
-            return const Center(child: Text('Belum ada mata praktikum.'));
+            return const Center(
+              child: Padding(
+                padding: EdgeInsets.all(24),
+                child: Text(
+                  'Belum ada mata praktikum.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16),
+                ),
+              ),
+            );
           }
           return ListView.builder(
+            padding: const EdgeInsets.all(16),
             itemCount: data.length,
             itemBuilder: (context, index) {
               final item = data[index];
-              return ListTile(
-                title: Text(item['nama'] as String),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      tooltip: 'Edit',
-                      onPressed: () => bukaForm(item: item),
-                      icon: const Icon(Icons.edit_outlined),
-                    ),
-                    IconButton(
-                      tooltip: 'Hapus',
-                      onPressed: () => hapus(item['id'] as int),
-                      icon: const Icon(Icons.delete_outline),
+              final nama = item['nama'] as String;
+              return Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(18),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.blue.withOpacity(0.08),
+                      blurRadius: 14,
+                      offset: const Offset(0, 6),
                     ),
                   ],
+                ),
+                child: ListTile(
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 10,
+                  ),
+                  leading: CircleAvatar(
+                    radius: 24,
+                    backgroundColor: const Color(0xFFE3F2FD),
+                    child: const Icon(
+                      Icons.book_rounded,
+                      color: Color(0xFF1565C0),
+                    ),
+                  ),
+                  title: Text(
+                    nama,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 16,
+                    ),
+                  ),
+                  subtitle: Text('Mata praktikum aktif'),
+                  trailing: widget.readOnly
+                      ? const Icon(Icons.visibility_rounded, color: Colors.grey)
+                      : Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              tooltip: 'Edit',
+                              onPressed: () => bukaForm(item: item),
+                              icon: const Icon(Icons.edit_outlined),
+                              style: IconButton.styleFrom(
+                                backgroundColor: Colors.blue.shade50,
+                                foregroundColor: const Color(0xFF1565C0),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            IconButton(
+                              tooltip: 'Hapus',
+                              onPressed: () => hapus(item['id'] as int),
+                              icon: const Icon(Icons.delete_outline_rounded),
+                              style: IconButton.styleFrom(
+                                backgroundColor: Colors.red.shade50,
+                                foregroundColor: Colors.red,
+                              ),
+                            ),
+                          ],
+                        ),
                 ),
               );
             },

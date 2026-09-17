@@ -69,6 +69,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final nama = session?.nama ?? 'Pengguna';
+    final menu = getSemuaMenu(widget.role);
+
     return Scaffold(
       appBar: AppBar(title: const Text('LabMate')),
       body: Column(
@@ -85,16 +87,16 @@ class _HomeScreenState extends State<HomeScreen> {
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.all(16),
-              itemCount: semuaMenu.length,
+              itemCount: menu.length,
               itemBuilder: (context, index) => Card(
                 child: ListTile(
-                  leading: Icon(semuaMenu[index].ikon),
-                  title: Text(semuaMenu[index].judul),
-                  subtitle: Text(semuaMenu[index].deskripsi),
+                  leading: Icon(menu[index].ikon),
+                  title: Text(menu[index].judul),
+                  subtitle: Text(menu[index].deskripsi),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => Navigator.push(
                     context,
-                    MaterialPageRoute(builder: semuaMenu[index].builder),
+                    MaterialPageRoute(builder: menu[index].builder),
                   ),
                 ),
               ),
