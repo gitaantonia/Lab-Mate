@@ -9,7 +9,12 @@ import 'utils/session_helper.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
-  if (!kIsWeb) {
+  final isDesktop =
+      defaultTargetPlatform == TargetPlatform.windows ||
+      defaultTargetPlatform == TargetPlatform.linux ||
+      defaultTargetPlatform == TargetPlatform.macOS;
+
+  if (!kIsWeb && isDesktop) {
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
   }

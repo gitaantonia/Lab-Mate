@@ -3,6 +3,7 @@ import '../utils/session_helper.dart';
 import 'menu_utama.dart';
 import 'stopwatch_screen.dart';
 import 'bantuan_screen.dart';
+import 'profil_screen.dart';
 
 class MainShell extends StatefulWidget {
   final String role;
@@ -77,13 +78,25 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           ListTile(
             leading: CircleAvatar(
-              child: Text(nama.isEmpty ? '?' : nama[0].toUpperCase()),
+              backgroundColor: Colors.blue.shade100,
+              child: Text(
+                nama.isEmpty ? '?' : nama[0].toUpperCase(),
+                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue.shade900),
+              ),
             ),
             title: Text('Halo, $nama'),
             subtitle: Text(
               widget.role == 'aslab' ? 'Asisten Laboratorium' : 'Praktikan',
             ),
+            trailing: const Icon(Icons.person_outline),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ProfilScreen()),
+              );
+            },
           ),
+          const Divider(height: 1),
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.all(16),
