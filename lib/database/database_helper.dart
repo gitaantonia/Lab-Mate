@@ -168,9 +168,22 @@ class DBHelper {
       whereArgs: [normalizedUsername],
       limit: 1,
     );
-    if (praktikan.isEmpty) return null;
 
-    final praktikanId = praktikan.first['id'] as int;
+    int praktikanId;
+    if (praktikan.isEmpty) {
+      // Auto-register NIM praktikan baru jika login pertama dengan password '12345'
+      final listMp = await getMataPraktikum();
+      final mpId = listMp.isNotEmpty ? listMp.first['id'] as int : 1;
+      praktikanId = await db.insert('praktikan', {
+        'mata_praktikum_id': mpId,
+        'nim': normalizedUsername,
+        'nama': 'Praktikan $normalizedUsername',
+        'tanggal_lahir': '2002-05-15',
+      });
+    } else {
+      praktikanId = praktikan.first['id'] as int;
+    }
+
     final akun = await db.query(
       'akun',
       where: 'praktikan_id = ? OR username = ?',
