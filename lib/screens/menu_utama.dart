@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'mata_praktikan_screen.dart';
 import 'praktikan/praktikan_screen.dart';
+import 'nilai/input_nilai_screen.dart';
+import 'nilai/lihat_nilai_screen.dart';
+import 'kalkulator_umur_screen.dart';
+import 'konversi_kalender_screen.dart';
 
 class MenuUtama {
   final String judul;
@@ -33,55 +37,49 @@ List<MenuUtama> getSemuaMenu(String role) {
       ),
       MenuUtama(
         judul: 'Komputasi Nilai',
-        deskripsi: 'Tempat integrasi modul komputasi',
+        deskripsi: 'Input nilai praktikan & komputasi nilai akhir',
         ikon: Icons.calculate,
-        builder: (_) => const ManualFeatureScreen(judul: 'Komputasi Nilai'),
+        builder: (_) => const NilaiInputScreen(),
       ),
       MenuUtama(
         judul: 'Kalkulator Umur',
-        deskripsi: 'Tempat integrasi kalkulator umur',
+        deskripsi: 'Hitung presisi usia dari tanggal acuan mana saja',
         ikon: Icons.cake,
-        builder: (_) => const ManualFeatureScreen(judul: 'Kalkulator Umur'),
+        builder: (_) => const KalkulatorUmurScreen(),
       ),
       MenuUtama(
         judul: 'Konversi Kalender',
-        deskripsi: 'Tempat integrasi kalender Hijriah, Weton, dan Saka Bali',
+        deskripsi: 'Penanggalan Hijriah, Weton Jawa, dan Wuku Saka Bali',
         ikon: Icons.event,
-        builder: (_) => const ManualFeatureScreen(judul: 'Konversi Kalender'),
+        builder: (_) => const KonversiKalenderScreen(),
       ),
     ];
   }
 
   return [
     MenuUtama(
-      judul: 'Daftar Anggota',
-      deskripsi: 'Lihat data praktikan secara read-only',
-      ikon: Icons.groups,
-      builder: (_) => const PraktikanScreen(readOnly: true),
-    ),
-    MenuUtama(
-      judul: 'Kelola Data Praktikum',
-      deskripsi: 'Lihat mata praktikum secara read-only',
-      ikon: Icons.folder_shared,
-      builder: (_) => const MataPraktikumScreen(readOnly: true),
-    ),
-    MenuUtama(
-      judul: 'Komputasi Nilai',
-      deskripsi: 'Tempat integrasi modul komputasi',
+      judul: 'Lihat Nilai Saya',
+      deskripsi: 'Cek rincian skor komponen dan Nilai Akhir + Grade',
       ikon: Icons.calculate,
-      builder: (_) => const ManualFeatureScreen(judul: 'Komputasi Nilai'),
+      builder: (_) => const LihatNilaiScreen(),
     ),
     MenuUtama(
       judul: 'Kalkulator Umur',
-      deskripsi: 'Tempat integrasi kalkulator umur',
+      deskripsi: 'Hitung presisi usia dari tanggal acuan mana saja',
       ikon: Icons.cake,
-      builder: (_) => const ManualFeatureScreen(judul: 'Kalkulator Umur'),
+      builder: (_) => const KalkulatorUmurScreen(),
     ),
     MenuUtama(
       judul: 'Konversi Kalender',
-      deskripsi: 'Tempat integrasi kalender Hijriah, Weton, dan Saka Bali',
+      deskripsi: 'Penanggalan Hijriah, Weton Jawa, dan Wuku Saka Bali',
       ikon: Icons.event,
-      builder: (_) => const ManualFeatureScreen(judul: 'Konversi Kalender'),
+      builder: (_) => const KonversiKalenderScreen(),
+    ),
+    MenuUtama(
+      judul: 'Daftar Anggota',
+      deskripsi: 'Lihat data rekan praktikan secara read-only',
+      ikon: Icons.groups,
+      builder: (_) => const PraktikanScreen(readOnly: true),
     ),
   ];
 }
