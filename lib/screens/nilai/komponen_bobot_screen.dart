@@ -49,7 +49,9 @@ class _KomponenBobotScreenState extends State<KomponenBobotScreen> {
         _selectedMataPraktikumId = list.first['id'] as int;
       }
       if (_selectedMataPraktikumId != null &&
-          !_mataPraktikumList.any((item) => item['id'] == _selectedMataPraktikumId)) {
+          !_mataPraktikumList.any(
+            (item) => item['id'] == _selectedMataPraktikumId,
+          )) {
         _selectedMataPraktikumId = _mataPraktikumList.isNotEmpty
             ? (_mataPraktikumList.first['id'] as int)
             : null;
@@ -63,9 +65,7 @@ class _KomponenBobotScreenState extends State<KomponenBobotScreen> {
       text: item != null ? (item['nama_komponen'] as String? ?? '') : '',
     );
     final bobotController = TextEditingController(
-      text: item != null
-          ? ((item['bobot'] as num?)?.toString() ?? '')
-          : '',
+      text: item != null ? ((item['bobot'] as num?)?.toString() ?? '') : '',
     );
 
     if (_selectedMataPraktikumId == null) {
@@ -97,7 +97,9 @@ class _KomponenBobotScreenState extends State<KomponenBobotScreen> {
               const SizedBox(height: 12),
               TextField(
                 controller: bobotController,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 decoration: const InputDecoration(
                   labelText: 'Bobot (%)',
                   border: OutlineInputBorder(),
@@ -119,7 +121,9 @@ class _KomponenBobotScreenState extends State<KomponenBobotScreen> {
 
               if (nama.isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Nama komponen tidak boleh kosong')),
+                  const SnackBar(
+                    content: Text('Nama komponen tidak boleh kosong'),
+                  ),
                 );
                 return;
               }
@@ -146,6 +150,31 @@ class _KomponenBobotScreenState extends State<KomponenBobotScreen> {
 
     final nama = result['nama'] as String;
     final bobot = (result['bobot'] as double).toDouble();
+    final komponenSaatIni = await DBHelper.instance.getKomponenBobot(
+      _selectedMataPraktikumId!,
+    );
+    final totalBobotSaatIni = komponenSaatIni.fold<double>(0, (total, data) {
+      return total + ((data['bobot'] as num?)?.toDouble() ?? 0.0);
+    });
+    final bobotLama = item == null
+        ? 0.0
+        : ((item['bobot'] as num?)?.toDouble() ?? 0.0);
+    final totalBobotSetelahSimpan = totalBobotSaatIni - bobotLama + bobot;
+
+    if (totalBobotSetelahSimpan > 100.01) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Total bobot tidak boleh lebih dari 100%. '
+              'Total setelah disimpan: '
+              '${totalBobotSetelahSimpan.toStringAsFixed(2)}%',
+            ),
+          ),
+        );
+      }
+      return;
+    }
 
     if (item == null) {
       await DBHelper.instance.tambahKomponenBobot(
@@ -224,7 +253,9 @@ class _KomponenBobotScreenState extends State<KomponenBobotScreen> {
 
               if (komponenSnapshot.hasError) {
                 return Center(
-                  child: Text('Gagal memuat komponen bobot: ${komponenSnapshot.error}'),
+                  child: Text(
+                    'Gagal memuat komponen bobot: ${komponenSnapshot.error}',
+                  ),
                 );
               }
 
@@ -341,7 +372,10 @@ class _KomponenBobotScreenState extends State<KomponenBobotScreen> {
                       child: ListTile(
                         leading: CircleAvatar(
                           backgroundColor: Colors.blue.shade50,
-                          child: Icon(Icons.assignment_rounded, color: Colors.blue.shade700),
+                          child: Icon(
+                            Icons.assignment_rounded,
+                            color: Colors.blue.shade700,
+                          ),
                         ),
                         title: Text(nama),
                         subtitle: Text('${bobot.toStringAsFixed(0)}% bobot'),

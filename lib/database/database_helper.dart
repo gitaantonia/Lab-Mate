@@ -33,7 +33,7 @@ class DBHelper {
 
     return await openDatabase(
       path,
-      version: 2,
+      version: 3,
       onConfigure: (db) async {
         await db.execute('PRAGMA foreign_keys = ON');
       },
@@ -48,6 +48,13 @@ class DBHelper {
       ALTER TABLE praktikan
       ADD COLUMN tanggal_lahir TEXT
     ''');
+    }
+
+    if (oldVersion < 3) {
+      final mataPraktikum = await db.query('mata_praktikum');
+      for (final mata in mataPraktikum) {
+        await _buatKomponenBobotDefaultJikaBelumAda(db, mata['id'] as int);
+      }
     }
   }
 
@@ -325,7 +332,37 @@ class DBHelper {
   Future<int> tambahMataPraktikum(String nama) async {
     final db = await database;
 
-    return await db.insert('mata_praktikum', {'nama': nama});
+    final mataPraktikumId = await db.insert('mata_praktikum', {'nama': nama});
+    await _buatKomponenBobotDefaultJikaBelumAda(db, mataPraktikumId);
+    return mataPraktikumId;
+  }
+
+  Future<void> _buatKomponenBobotDefaultJikaBelumAda(
+    Database db,
+    int mataPraktikumId,
+  ) async {
+    final existing = await db.query(
+      'komponen_bobot',
+      where: 'mata_praktikum_id = ?',
+      whereArgs: [mataPraktikumId],
+      limit: 1,
+    );
+
+    if (existing.isNotEmpty) return;
+
+    const komponenDefault = [
+      {'nama_komponen': 'Tugas', 'bobot': 30.0},
+      {'nama_komponen': 'Post-test', 'bobot': 30.0},
+      {'nama_komponen': 'Project', 'bobot': 40.0},
+    ];
+
+    for (final komponen in komponenDefault) {
+      await db.insert('komponen_bobot', {
+        'mata_praktikum_id': mataPraktikumId,
+        'nama_komponen': komponen['nama_komponen'],
+        'bobot': komponen['bobot'],
+      });
+    }
   }
 
   Future<List<Map<String, dynamic>>> getMataPraktikum() async {
@@ -361,6 +398,11 @@ class DBHelper {
     required double bobot,
   }) async {
     final db = await database;
+    await _validasiTotalBobot(
+      db,
+      mataPraktikumId: mataPraktikumId,
+      bobotBaru: bobot,
+    );
 
     return await db.insert('komponen_bobot', {
       'mata_praktikum_id': mataPraktikumId,
@@ -388,6 +430,22 @@ class DBHelper {
     required double bobot,
   }) async {
     final db = await database;
+    final komponen = await db.query(
+      'komponen_bobot',
+      columns: ['mata_praktikum_id'],
+      where: 'id = ?',
+      whereArgs: [id],
+      limit: 1,
+    );
+
+    if (komponen.isNotEmpty) {
+      await _validasiTotalBobot(
+        db,
+        mataPraktikumId: komponen.first['mata_praktikum_id'] as int,
+        bobotBaru: bobot,
+        komponenId: id,
+      );
+    }
 
     return await db.update(
       'komponen_bobot',
@@ -395,6 +453,29 @@ class DBHelper {
       where: 'id = ?',
       whereArgs: [id],
     );
+  }
+
+  Future<void> _validasiTotalBobot(
+    Database db, {
+    required int mataPraktikumId,
+    required double bobotBaru,
+    int? komponenId,
+  }) async {
+    final komponen = await db.query(
+      'komponen_bobot',
+      columns: ['id', 'bobot'],
+      where: 'mata_praktikum_id = ?',
+      whereArgs: [mataPraktikumId],
+    );
+
+    final totalBobot = komponen.fold<double>(0, (total, item) {
+      if (item['id'] == komponenId) return total;
+      return total + ((item['bobot'] as num?)?.toDouble() ?? 0.0);
+    });
+
+    if (totalBobot + bobotBaru > 100.01) {
+      throw ArgumentError('Total bobot tidak boleh lebih dari 100%');
+    }
   }
 
   Future<int> hapusKomponenBobot(int id) async {
@@ -581,26 +662,7 @@ class DBHelper {
     // 1. Tambah Mata Praktikum
     final mataPraktikumId = await tambahMataPraktikum('Pemrograman Mobile');
 
-    // 2. Tambah Komponen Nilai
-    await tambahKomponenBobot(
-      mataPraktikumId: mataPraktikumId,
-      namaKomponen: 'Tugas',
-      bobot: 30,
-    );
-
-    await tambahKomponenBobot(
-      mataPraktikumId: mataPraktikumId,
-      namaKomponen: 'Post-test',
-      bobot: 30,
-    );
-
-    await tambahKomponenBobot(
-      mataPraktikumId: mataPraktikumId,
-      namaKomponen: 'Project',
-      bobot: 40,
-    );
-
-    // 3. Tambah Praktikan
+    // 2. Tambah Praktikan
     await tambahPraktikan(
       mataPraktikumId: mataPraktikumId,
       nim: '2024010001',
