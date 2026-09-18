@@ -1,5 +1,5 @@
+```dart
 import 'package:flutter/material.dart';
-// [AKSES DATABASE - READ ONLY] Mengimpor DBHelper hanya untuk membaca data nilai tersimpan
 import '../../database/database_helper.dart';
 import '../../utils/komputasi_helper.dart';
 import '../../utils/session_helper.dart';
@@ -13,8 +13,11 @@ class LihatNilaiScreen extends StatefulWidget {
 
 class _LihatNilaiScreenState extends State<LihatNilaiScreen> {
   bool isLoading = true;
+
   List<Map<String, dynamic>> listNilai = [];
+
   double? nilaiAkhir;
+
   String? namaPraktikan;
   String? nimPraktikan;
 
@@ -26,51 +29,69 @@ class _LihatNilaiScreenState extends State<LihatNilaiScreen> {
 
   Future<void> _loadNilaiPraktikan() async {
     setState(() => isLoading = true);
+
     try {
       final session = await SessionHelper.ambil();
       final praktikanId = session?.praktikanId;
 
-      // [AKSES DATABASE - READ ONLY] Mencari data praktikan dan nilainya berdasarkan praktikanId/session
       final db = DBHelper.instance;
+
       if (praktikanId != null) {
-        // [AKSES DATABASE - READ ONLY] Query nilai komponen praktikan yang tersimpan
+        // Mengambil nilai komponen praktikan
         final data = await db.getNilaiPraktikan(praktikanId);
-        
-        // [AKSES DATABASE - READ ONLY] Query data praktikan untuk mengambil nama & nim
+
+        // Mengambil data praktikan untuk nama dan NIM
         final praktikanList = await db.getPraktikan();
+
         final currentP = praktikanList.firstWhere(
           (p) => p['id'] == praktikanId,
-          orElse: () => {'nama': session?.nama ?? 'Praktikan', 'nim': session?.username ?? '-'},
+          orElse: () => {
+            'nama': session?.nama ?? 'Praktikan',
+            'nim': session?.username ?? '-',
+          },
         );
 
         double totalNilai = 0.0;
+
         if (data.isNotEmpty) {
-          totalNilai = KomputasiHelper.hitungNilaiAkhir(nilaiKomponen: data);
+          totalNilai = KomputasiHelper.hitungNilaiAkhir(
+            nilaiKomponen: data,
+          );
         }
 
         if (mounted) {
           setState(() {
             listNilai = data;
-            nilaiAkhir = data.isNotEmpty ? KomputasiHelper.bulatkanNilai(totalNilai) : null;
+
+            nilaiAkhir = data.isNotEmpty
+                ? KomputasiHelper.bulatkanNilai(totalNilai)
+                : null;
+
             namaPraktikan = currentP['nama'] as String?;
             nimPraktikan = currentP['nim'] as String?;
           });
         }
       } else {
-        // Jika aslab melihat screen ini secara umum atau belum ada sesi praktikan
-        setState(() {
-          namaPraktikan = session?.nama ?? 'Pengguna';
-          nimPraktikan = session?.username ?? '-';
-        });
+        // Jika belum ada sesi praktikan
+        if (mounted) {
+          setState(() {
+            namaPraktikan = session?.nama ?? 'Pengguna';
+            nimPraktikan = session?.username ?? '-';
+          });
+        }
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal memuat nilai: $e')),
+          SnackBar(
+            content: Text('Gagal memuat nilai: $e'),
+          ),
         );
       }
     } finally {
-      if (mounted) setState(() => isLoading = false);
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
     }
   }
 
@@ -81,16 +102,22 @@ class _LihatNilaiScreenState extends State<LihatNilaiScreen> {
         title: const Text('Komputasi Nilai Saya'),
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
           : SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Card Profil Ringkas Praktikan
+                  // =========================
+                  // CARD PROFIL PRAKTIKAN
+                  // =========================
                   Card(
                     elevation: 2,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Row(
@@ -98,7 +125,11 @@ class _LihatNilaiScreenState extends State<LihatNilaiScreen> {
                           CircleAvatar(
                             radius: 24,
                             backgroundColor: Colors.blue.shade100,
-                            child: const Icon(Icons.person, color: Colors.blue, size: 28),
+                            child: const Icon(
+                              Icons.person,
+                              color: Colors.blue,
+                              size: 28,
+                            ),
                           ),
                           const SizedBox(width: 16),
                           Expanded(
@@ -107,12 +138,18 @@ class _LihatNilaiScreenState extends State<LihatNilaiScreen> {
                               children: [
                                 Text(
                                   namaPraktikan ?? 'Praktikan',
-                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
                                   'NIM: ${nimPraktikan ?? '-'}',
-                                  style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                                  style: TextStyle(
+                                    color: Colors.grey.shade600,
+                                    fontSize: 13,
+                                  ),
                                 ),
                               ],
                             ),
@@ -124,19 +161,30 @@ class _LihatNilaiScreenState extends State<LihatNilaiScreen> {
 
                   const SizedBox(height: 16),
 
-                  // Display Nilai Akhir & Grade
+                  // =========================
+                  // NILAI AKHIR & GRADE
+                  // =========================
                   if (nilaiAkhir != null) ...[
                     Card(
                       elevation: 3,
                       color: Colors.blue.shade50,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 24.0,
+                          horizontal: 16.0,
+                        ),
                         child: Column(
                           children: [
                             const Text(
                               'Nilai Akhir Terakumulasi',
-                              style: TextStyle(fontSize: 14, color: Colors.blueGrey, fontWeight: FontWeight.w500),
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.blueGrey,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                             const SizedBox(height: 8),
                             Text(
@@ -149,28 +197,42 @@ class _LihatNilaiScreenState extends State<LihatNilaiScreen> {
                             ),
                             const SizedBox(height: 6),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 6,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.blue.shade700,
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Text(
                                 'Grade: ${KomputasiHelper.tentukanGrade(nilaiAkhir!)}',
-                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
                               ),
                             ),
                           ],
                         ),
                       ),
                     ),
+
                     const SizedBox(height: 20),
                   ],
 
-                  // Detail Rincian Komponen Nilai
+                  // =========================
+                  // RINCIAN KOMPONEN NILAI
+                  // =========================
                   const Text(
                     'Rincian Komponen Nilai',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
                   ),
+
                   const SizedBox(height: 10),
 
                   if (listNilai.isEmpty)
@@ -179,11 +241,17 @@ class _LihatNilaiScreenState extends State<LihatNilaiScreen> {
                         padding: const EdgeInsets.all(24.0),
                         child: Column(
                           children: [
-                            Icon(Icons.info_outline, color: Colors.grey.shade400, size: 40),
+                            Icon(
+                              Icons.info_outline,
+                              color: Colors.grey.shade400,
+                              size: 40,
+                            ),
                             const SizedBox(height: 8),
                             Text(
                               'Belum ada nilai yang diinputkan oleh Aslab.',
-                              style: TextStyle(color: Colors.grey.shade600),
+                              style: TextStyle(
+                                color: Colors.grey.shade600,
+                              ),
                               textAlign: TextAlign.center,
                             ),
                           ],
@@ -191,30 +259,176 @@ class _LihatNilaiScreenState extends State<LihatNilaiScreen> {
                       ),
                     )
                   else
-                    ...listNilai.map((item) {
-                      final namaComp = item['nama_komponen'] ?? '-';
-                      final bobot = (item['bobot'] as num?)?.toDouble() ?? 0.0;
-                      final skor = (item['skor'] as num?)?.toDouble() ?? 0.0;
+                    Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: DataTable(
+                            columnSpacing: 20,
+                            headingRowColor:
+                                WidgetStateProperty.all(
+                              Colors.blue.shade50,
+                            ),
+                            columns: const [
+                              DataColumn(
+                                label: Text(
+                                  'Komponen',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              DataColumn(
+                                label: Text(
+                                  'Skor',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                numeric: true,
+                              ),
+                              DataColumn(
+                                label: Text(
+                                  'Bobot',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                numeric: true,
+                              ),
+                              DataColumn(
+                                label: Text(
+                                  'Nilai Terbobot',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                numeric: true,
+                              ),
+                            ],
+                            rows: [
+                              // Baris setiap komponen
+                              ...listNilai.map(
+                                (item) {
+                                  final namaComp =
+                                      item['nama_komponen']
+                                              ?.toString() ??
+                                          '-';
 
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 10),
-                        child: ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: Colors.blue.shade50,
-                            child: const Icon(Icons.assignment_outlined, color: Colors.blue),
-                          ),
-                          title: Text(namaComp.toString(), style: const TextStyle(fontWeight: FontWeight.w600)),
-                          subtitle: Text('Bobot: ${bobot.toStringAsFixed(0)}%'),
-                          trailing: Text(
-                            skor.toStringAsFixed(1),
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue),
+                                  final bobot =
+                                      (item['bobot'] as num?)
+                                              ?.toDouble() ??
+                                          0.0;
+
+                                  final skor =
+                                      (item['skor'] as num?)
+                                              ?.toDouble() ??
+                                          0.0;
+
+                                  final nilaiTerbobot =
+                                      skor * bobot / 100;
+
+                                  return DataRow(
+                                    cells: [
+                                      DataCell(
+                                        Text(namaComp),
+                                      ),
+                                      DataCell(
+                                        Text(
+                                          skor.toStringAsFixed(1),
+                                        ),
+                                      ),
+                                      DataCell(
+                                        Text(
+                                          '${bobot.toStringAsFixed(0)}%',
+                                        ),
+                                      ),
+                                      DataCell(
+                                        Text(
+                                          nilaiTerbobot
+                                              .toStringAsFixed(2),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              ),
+
+                              // Baris TOTAL
+                              DataRow(
+                                cells: [
+                                  const DataCell(
+                                    Text(
+                                      'TOTAL',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  const DataCell(
+                                    Text('-'),
+                                  ),
+                                  DataCell(
+                                    Text(
+                                      '${listNilai.fold<double>(
+                                        0.0,
+                                        (total, item) =>
+                                            total +
+                                            ((item['bobot'] as num?)
+                                                    ?.toDouble() ??
+                                                0.0),
+                                      ).toStringAsFixed(0)}%',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  DataCell(
+                                    Text(
+                                      listNilai
+                                          .fold<double>(
+                                            0.0,
+                                            (total, item) {
+                                              final skor =
+                                                  (item['skor']
+                                                              as num?)
+                                                          ?.toDouble() ??
+                                                      0.0;
+
+                                              final bobot =
+                                                  (item['bobot']
+                                                              as num?)
+                                                          ?.toDouble() ??
+                                                      0.0;
+
+                                              return total +
+                                                  (skor *
+                                                          bobot /
+                                                          100);
+                                            },
+                                          )
+                                          .toStringAsFixed(2),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                         ),
-                      );
-                    }),
+                      ),
+                    ),
                 ],
               ),
             ),
     );
   }
 }
+
