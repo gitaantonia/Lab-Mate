@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../database/database_helper.dart';
+import '../../utils/tanggal_helper.dart';
 import '../mata_praktikan_screen.dart';
 
 class PraktikanScreen extends StatefulWidget {
@@ -28,6 +30,12 @@ class _PraktikanScreenState extends State<PraktikanScreen> {
       praktikan = DBHelper.instance.getPraktikan();
       mataPraktikum = DBHelper.instance.getMataPraktikum();
     });
+  }
+
+  String _formatTanggal(DateTime tanggal) {
+    return '${tanggal.year.toString().padLeft(4, '0')}-'
+        '${tanggal.month.toString().padLeft(2, '0')}-'
+        '${tanggal.day.toString().padLeft(2, '0')}';
   }
 
   Future<void> bukaForm({Map<String, dynamic>? item}) async {
@@ -96,6 +104,8 @@ class _PraktikanScreenState extends State<PraktikanScreen> {
                 const SizedBox(height: 14),
                 TextField(
                   controller: nimController,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   decoration: const InputDecoration(
                     labelText: 'NIM',
                     border: OutlineInputBorder(),
@@ -104,6 +114,10 @@ class _PraktikanScreenState extends State<PraktikanScreen> {
                 const SizedBox(height: 14),
                 TextField(
                   controller: namaController,
+                  keyboardType: TextInputType.name,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z ]')),
+                  ],
                   decoration: const InputDecoration(
                     labelText: 'Nama',
                     border: OutlineInputBorder(),
@@ -112,9 +126,28 @@ class _PraktikanScreenState extends State<PraktikanScreen> {
                 const SizedBox(height: 14),
                 TextField(
                   controller: tanggalController,
+                  readOnly: true,
+                  onTap: () async {
+                    final tanggalSaatIni = parseTanggalLahir(
+                      tanggalController.text,
+                    );
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: tanggalSaatIni ?? DateTime(2000, 1, 1),
+                      firstDate: DateTime(1900),
+                      lastDate: DateTime.now(),
+                      helpText: 'PILIH TANGGAL LAHIR',
+                    );
+                    if (picked != null) {
+                      setDialogState(
+                        () => tanggalController.text = _formatTanggal(picked),
+                      );
+                    }
+                  },
                   decoration: const InputDecoration(
                     labelText: 'Tanggal lahir',
                     border: OutlineInputBorder(),
+                    suffixIcon: Icon(Icons.calendar_month),
                   ),
                 ),
               ],
@@ -130,26 +163,49 @@ class _PraktikanScreenState extends State<PraktikanScreen> {
             ),
             FilledButton(
               onPressed: () async {
-                if (nimController.text.trim().isEmpty ||
-                    namaController.text.trim().isEmpty ||
-                    tanggalController.text.trim().isEmpty) {
+                final nim = nimController.text.trim();
+                final nama = namaController.text.trim();
+                final tanggalLahir = tanggalController.text.trim();
+
+                if (nim.isEmpty || !RegExp(r'^\d+$').hasMatch(nim)) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('NIM hanya boleh berisi angka.'),
+                    ),
+                  );
+                  return;
+                }
+                if (nama.isEmpty || !RegExp(r'^[a-zA-Z ]+$').hasMatch(nama)) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Nama hanya boleh berisi huruf.'),
+                    ),
+                  );
+                  return;
+                }
+                if (parseTanggalLahir(tanggalLahir) == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Pilih tanggal lahir yang valid.'),
+                    ),
+                  );
                   return;
                 }
                 try {
                   if (item == null) {
                     await DBHelper.instance.tambahPraktikan(
                       mataPraktikumId: mataId,
-                      nim: nimController.text.trim(),
-                      nama: namaController.text.trim(),
-                      tanggalLahir: tanggalController.text.trim(),
+                      nim: nim,
+                      nama: nama,
+                      tanggalLahir: tanggalLahir,
                     );
                   } else {
                     await DBHelper.instance.updatePraktikan(
                       id: item['id'] as int,
                       mataPraktikumId: mataId,
-                      nim: nimController.text.trim(),
-                      nama: namaController.text.trim(),
-                      tanggalLahir: tanggalController.text.trim(),
+                      nim: nim,
+                      nama: nama,
+                      tanggalLahir: tanggalLahir,
                     );
                   }
                 } catch (error) {
