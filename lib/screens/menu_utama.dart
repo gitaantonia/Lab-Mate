@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'mata_praktikan_screen.dart';
 import 'praktikan/praktikan_screen.dart';
 import 'nilai/input_nilai_screen.dart';
+import 'nilai/kelompok_screen.dart';
 import 'nilai/lihat_nilai_screen.dart';
 import 'kalkulator_umur_screen.dart';
 import 'konversi_kalender_screen.dart';
@@ -40,6 +41,12 @@ List<MenuUtama> getSemuaMenu(String role) {
         deskripsi: 'Input nilai praktikan & komputasi nilai akhir',
         ikon: Icons.calculate,
         builder: (_) => const NilaiInputScreen(),
+      ),
+      MenuUtama(
+        judul: 'Kelompok Praktikum',
+        deskripsi: 'Lihat dan kelola kelompok praktikum',
+        ikon: Icons.group,
+        builder: (_) => const KelompokScreen(),
       ),
       MenuUtama(
         judul: 'Kalkulator Umur',
