@@ -38,7 +38,6 @@ class _NilaiInputScreenState extends State<NilaiInputScreen> {
     });
 
     try {
-      await dbHelper.tambahDataDummy();
       final data = await dbHelper.getMataPraktikum();
 
       print('DATA MATA PRAKTIKUM: $data');

@@ -4,6 +4,7 @@ import 'praktikan/praktikan_screen.dart';
 import 'nilai/input_nilai_screen.dart';
 import 'nilai/kelompok_screen.dart';
 import 'nilai/lihat_nilai_screen.dart';
+import 'nilai/rekap_nilai_screen.dart';
 import 'kalkulator_umur_screen.dart';
 import 'konversi_kalender_screen.dart';
 
@@ -47,6 +48,12 @@ List<MenuUtama> getSemuaMenu(String role) {
         deskripsi: 'Lihat dan kelola kelompok praktikum',
         ikon: Icons.group,
         builder: (_) => const KelompokScreen(),
+      ),
+      MenuUtama(
+        judul: 'Rekap Nilai Praktikan',
+        deskripsi: 'Lihat rekap nilai seluruh praktikan berdasarkan mata praktikum',
+        ikon: Icons.table_chart,
+        builder: (_) => const RekapNilaiScreen(),
       ),
       MenuUtama(
         judul: 'Kalkulator Umur',
