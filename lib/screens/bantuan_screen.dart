@@ -262,7 +262,7 @@ class _BantuanScreenState extends State<BantuanScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
             child: Text(
-              'Tim Pengembang (Kelompok 4)',
+              'Tim Pengembang',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -281,22 +281,22 @@ class _BantuanScreenState extends State<BantuanScreen> {
               child: Column(
                 children: [
                   _DeveloperMemberTile(
-                    nama: 'Anggota 1',
+                    nama: 'Gita Antonia Sipayung',
                     tugas: 'Database (SQLite), Login, Session, & Navigation',
                   ),
                   Divider(height: 16),
                   _DeveloperMemberTile(
-                    nama: 'Anggota 2',
+                    nama: 'Lucy Katarina Naibaho',
                     tugas: 'CRUD Mata Praktikum & Kelola Praktikan',
                   ),
                   Divider(height: 16),
                   _DeveloperMemberTile(
-                    nama: 'Anggota 3',
-                    tugas: 'Komputasi Nilai Akhir, Rata-rata & Kelompok',
+                    nama: 'Serena Luna Halim',
+                    tugas: 'Komputasi Nilai Akhir, Pembobotan Nilai, Rata-rata & Kelompok',
                   ),
                   Divider(height: 16),
                   _DeveloperMemberTile(
-                    nama: 'Anggota 4',
+                    nama: 'Gevinta Aprilia Putri',
                     tugas: 'Konversi Kalender (Hijriah/Weton/Saka), Stopwatch, & Bantuan',
                   ),
                 ],
