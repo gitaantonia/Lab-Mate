@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../database/database_helper.dart';
+import 'nilai/komponen_bobot_screen.dart';
 
 class MataPraktikumScreen extends StatefulWidget {
   final bool readOnly;
@@ -154,6 +155,30 @@ class _MataPraktikumScreenState extends State<MataPraktikumScreen> {
                       : Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
+                            OutlinedButton.icon(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => KomponenBobotScreen(
+                                      mataPraktikumId: item['id'] as int,
+                                    ),
+                                  ),
+                                );
+                              },
+                              icon: const Icon(Icons.tune_rounded, size: 16),
+                              label: const Text('Bobot'),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: Colors.amber.shade800,
+                                side: BorderSide(color: Colors.amber.shade300),
+                                backgroundColor: Colors.amber.shade50,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 10,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
                             IconButton(
                               tooltip: 'Edit',
                               onPressed: () => bukaForm(item: item),
