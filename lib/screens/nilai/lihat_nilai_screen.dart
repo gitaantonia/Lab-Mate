@@ -314,115 +314,122 @@ class _LihatNilaiScreenState extends State<LihatNilaiScreen> {
                         border: Border.all(color: const Color(0xFFE2E8F0)),
                       ),
                       clipBehavior: Clip.antiAlias,
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: DataTable(
-                          columnSpacing: 24,
-                          headingRowColor: WidgetStateProperty.all(
-                            const Color(0xFFF1F5F9),
-                          ),
-                          headingTextStyle: const TextStyle(
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF1E293B),
-                            fontSize: 13,
-                          ),
-                          columns: const [
-                            DataColumn(
-                              label: Text('Komponen'),
-                            ),
-                            DataColumn(
-                              label: Text('Skor'),
-                              numeric: true,
-                            ),
-                            DataColumn(
-                              label: Text('Bobot'),
-                              numeric: true,
-                            ),
-                            DataColumn(
-                              label: Text('Nilai Terbobot'),
-                              numeric: true,
-                            ),
-                          ],
-                          rows: [
-                            // Baris setiap komponen
-                            ...listNilai.map(
-                              (item) {
-                                final namaComp =
-                                    item['nama_komponen']?.toString() ?? '-';
-                                final bobot =
-                                    (item['bobot'] as num?)?.toDouble() ?? 0.0;
-                                final skor =
-                                    (item['skor'] as num?)?.toDouble() ?? 0.0;
-                                final nilaiTerbobot = skor * bobot / 100;
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          return SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                              child: DataTable(
+                                columnSpacing: 16,
+                                headingRowColor: WidgetStateProperty.all(
+                                  const Color(0xFFF1F5F9),
+                                ),
+                                headingTextStyle: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF1E293B),
+                                  fontSize: 13,
+                                ),
+                                columns: const [
+                                  DataColumn(
+                                    label: Text('Komponen'),
+                                  ),
+                                  DataColumn(
+                                    label: Text('Skor'),
+                                    numeric: true,
+                                  ),
+                                  DataColumn(
+                                    label: Text('Bobot'),
+                                    numeric: true,
+                                  ),
+                                  DataColumn(
+                                    label: Text('Nilai Terbobot'),
+                                    numeric: true,
+                                  ),
+                                ],
+                                rows: [
+                                  // Baris setiap komponen
+                                  ...listNilai.map(
+                                    (item) {
+                                      final namaComp =
+                                          item['nama_komponen']?.toString() ?? '-';
+                                      final bobot =
+                                          (item['bobot'] as num?)?.toDouble() ?? 0.0;
+                                      final skor =
+                                          (item['skor'] as num?)?.toDouble() ?? 0.0;
+                                      final nilaiTerbobot = skor * bobot / 100;
 
-                                return DataRow(
-                                  cells: [
-                                    DataCell(Text(namaComp)),
-                                    DataCell(Text(skor.toStringAsFixed(1))),
-                                    DataCell(Text('${bobot.toStringAsFixed(0)}%')),
-                                    DataCell(
-                                      Text(
-                                        nilaiTerbobot.toStringAsFixed(2),
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.w600,
+                                      return DataRow(
+                                        cells: [
+                                          DataCell(Text(namaComp)),
+                                          DataCell(Text(skor.toStringAsFixed(1))),
+                                          DataCell(Text('${bobot.toStringAsFixed(0)}%')),
+                                          DataCell(
+                                            Text(
+                                              nilaiTerbobot.toStringAsFixed(2),
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  ),
+
+                                  // Baris TOTAL
+                                  DataRow(
+                                    color: WidgetStateProperty.all(const Color(0xFFF8FAFC)),
+                                    cells: [
+                                      const DataCell(
+                                        Text(
+                                          'TOTAL',
+                                          style: TextStyle(fontWeight: FontWeight.w800),
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                );
-                              },
+                                      const DataCell(Text('-')),
+                                      DataCell(
+                                        Text(
+                                          '${listNilai.fold<double>(
+                                            0.0,
+                                            (total, item) =>
+                                                total +
+                                                ((item['bobot'] as num?)
+                                                        ?.toDouble() ??
+                                                    0.0),
+                                          ).toStringAsFixed(0)}%',
+                                          style: const TextStyle(fontWeight: FontWeight.w800),
+                                        ),
+                                      ),
+                                      DataCell(
+                                        Text(
+                                          listNilai
+                                              .fold<double>(
+                                                0.0,
+                                                (total, item) {
+                                                  final skor = (item['skor'] as num?)
+                                                          ?.toDouble() ??
+                                                      0.0;
+                                                  final bobot = (item['bobot'] as num?)
+                                                          ?.toDouble() ??
+                                                      0.0;
+                                                  return total + (skor * bobot / 100);
+                                                },
+                                              )
+                                              .toStringAsFixed(2),
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w800,
+                                            color: Color(0xFF1E40AF),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
-
-                            // Baris TOTAL
-                            DataRow(
-                              color: WidgetStateProperty.all(const Color(0xFFF8FAFC)),
-                              cells: [
-                                const DataCell(
-                                  Text(
-                                    'TOTAL',
-                                    style: TextStyle(fontWeight: FontWeight.w800),
-                                  ),
-                                ),
-                                const DataCell(Text('-')),
-                                DataCell(
-                                  Text(
-                                    '${listNilai.fold<double>(
-                                      0.0,
-                                      (total, item) =>
-                                          total +
-                                          ((item['bobot'] as num?)
-                                                  ?.toDouble() ??
-                                              0.0),
-                                    ).toStringAsFixed(0)}%',
-                                    style: const TextStyle(fontWeight: FontWeight.w800),
-                                  ),
-                                ),
-                                DataCell(
-                                  Text(
-                                    listNilai
-                                        .fold<double>(
-                                          0.0,
-                                          (total, item) {
-                                            final skor = (item['skor'] as num?)
-                                                    ?.toDouble() ??
-                                                0.0;
-                                            final bobot = (item['bobot'] as num?)
-                                                    ?.toDouble() ??
-                                                0.0;
-                                            return total + (skor * bobot / 100);
-                                          },
-                                        )
-                                        .toStringAsFixed(2),
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w800,
-                                      color: Color(0xFF1E40AF),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                          );
+                        },
                       ),
                     ),
                 ],

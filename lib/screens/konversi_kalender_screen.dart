@@ -33,7 +33,7 @@ class _KonversiKalenderScreenState extends State<KonversiKalenderScreen> {
     final picked = await showDatePicker(
       context: context,
       initialDate: selectedDate,
-      firstDate: DateTime(1800),
+      firstDate: DateTime(1500),
       lastDate: DateTime(2200),
     );
     if (picked != null && picked != selectedDate) {

@@ -20,6 +20,9 @@ class _KelompokScreenState extends State<KelompokScreen> {
   int? selectedMataPraktikumId;
   bool isLoading = false;
 
+  int minAnggotaTarget = 3;
+  int maxAnggotaTarget = 4;
+
   @override
   void initState() {
     super.initState();
@@ -65,8 +68,8 @@ class _KelompokScreenState extends State<KelompokScreen> {
 
     final hasil = KelompokHelper.bagiKelompok(
       praktikanIds: ids,
-      minAnggota: 3,
-      maxAnggota: 4,
+      minAnggota: minAnggotaTarget,
+      maxAnggota: maxAnggotaTarget,
     );
 
     if (hasil.isEmpty) {
@@ -178,6 +181,41 @@ class _KelompokScreenState extends State<KelompokScreen> {
                         selectedMataPraktikumId = value;
                       });
                       _loadPraktikan(value);
+                    },
+                  ),
+                  const SizedBox(height: 14),
+                  const Text(
+                    'Kapasitas Anggota per Kelompok',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                      color: Color(0xFF334155),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  DropdownButtonFormField<String>(
+                    value: '$minAnggotaTarget-$maxAnggotaTarget',
+                    items: const [
+                      DropdownMenuItem(
+                        value: '3-4',
+                        child: Text('3 - 4 Orang (Format Standar / Rekomendasi)'),
+                      ),
+                      DropdownMenuItem(
+                        value: '2-3',
+                        child: Text('2 - 3 Orang (Kelompok Kecil)'),
+                      ),
+                      DropdownMenuItem(
+                        value: '4-5',
+                        child: Text('4 - 5 Orang (Kelompok Besar)'),
+                      ),
+                    ],
+                    onChanged: (value) {
+                      if (value == null) return;
+                      final parts = value.split('-');
+                      setState(() {
+                        minAnggotaTarget = int.parse(parts[0]);
+                        maxAnggotaTarget = int.parse(parts[1]);
+                      });
                     },
                   ),
                 ],

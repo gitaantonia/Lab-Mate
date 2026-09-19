@@ -48,7 +48,7 @@ class _KalkulatorUmurScreenState extends State<KalkulatorUmurScreen> {
     final picked = await showDatePicker(
       context: context,
       initialDate: selectedDate,
-      firstDate: DateTime(1900),
+      firstDate: DateTime(1500),
       lastDate: DateTime.now(),
     );
     if (picked != null) {

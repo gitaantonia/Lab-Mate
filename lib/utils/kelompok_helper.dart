@@ -32,9 +32,9 @@ class KelompokHelper {
         (totalPraktikan / minAnggota).floor();
 
     if (jumlahKelompok > jumlahKelompokMaksimal) {
-      // Contoh 5 orang tidak dapat dibagi menjadi
-      // kelompok berisi 3-4 orang.
-      return [];
+      // Jika jumlah tidak pas (misal 5 praktikan), gunakan pembagian fleksibel
+      jumlahKelompok = (totalPraktikan / maxAnggota).ceil();
+      if (jumlahKelompok < 1) jumlahKelompok = 1;
     }
 
     final List<List<String>> kelompok = [];

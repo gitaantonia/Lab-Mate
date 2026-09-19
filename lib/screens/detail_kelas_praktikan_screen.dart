@@ -181,7 +181,10 @@ class _DetailKelasPraktikanScreenState extends State<DetailKelasPraktikanScreen>
                       final nama = item['nama']?.toString() ?? '-';
                       final nim = item['nim']?.toString() ?? '-';
                       final kelompok = item['kelompok']?.toString() ?? '-';
-                      final tgl = item['tanggal_lahir']?.toString() ?? '-';
+                      final rawTgl = item['tanggal_lahir']?.toString();
+                      final tgl = (rawTgl == null || rawTgl.isEmpty || rawTgl == '0000-00-00')
+                          ? 'Belum di-set'
+                          : rawTgl;
 
                       return Card(
                         margin: const EdgeInsets.only(bottom: 10),

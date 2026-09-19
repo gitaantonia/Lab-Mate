@@ -277,7 +277,7 @@ class _BantuanScreenState extends State<BantuanScreen> {
                   title: 'Komputasi & Penilaian',
                   subtitle: 'Perhitungan nilai berbobot & kelompok',
                   content: '• Input Nilai: Nilai diinput per komponen praktikum. Komponen khusus "Project" dinilai paling akhir.\n\n'
-                      '• Pembagian Kelompok: Dikelompokkan otomatis berdasarkan angka sebelum koma dari rata-rata nilai (Ganjil/Genap) dengan format 3-4 orang per kelompok.',
+                      '• Pembagian Kelompok: Asisten Laboratorium dapat membagi praktikan ke dalam kelompok secara otomatis untuk mata praktikum tertentu. Format standar yang direkomendasikan adalah 3–4 orang per kelompok, dengan opsi fleksibel kelompok kecil (2–3 orang) atau kelompok besar (4–5 orang).',
                 ),
                 const Divider(height: 1),
                 _buildGuideTile(

@@ -131,10 +131,13 @@ class _PraktikanScreenState extends State<PraktikanScreen> {
                 TextField(
                   controller: nimController,
                   keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(9),
+                  ],
                   decoration: const InputDecoration(
                     labelText: 'NIM (Nomor Induk Mahasiswa)',
-                    hintText: 'Contoh: 2021001',
+                    hintText: 'Maksimal 9 digit angka',
                     prefixIcon: Icon(Icons.badge_outlined),
                   ),
                 ),
@@ -162,7 +165,7 @@ class _PraktikanScreenState extends State<PraktikanScreen> {
                     final picked = await showDatePicker(
                       context: context,
                       initialDate: tanggalSaatIni ?? DateTime(2002, 1, 1),
-                      firstDate: DateTime(1900),
+                      firstDate: DateTime(1500),
                       lastDate: DateTime.now(),
                       helpText: 'PILIH TANGGAL LAHIR',
                     );

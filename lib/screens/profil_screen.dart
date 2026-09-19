@@ -63,22 +63,27 @@ class _ProfilScreenState extends State<ProfilScreen> {
     }
 
     DateTime? parsedDate;
-    try {
-      final parts = tglLahir.split('-');
-      if (parts.length >= 3) {
-        final y = int.parse(parts[0]);
-        final m = int.parse(parts[1]);
-        final d = int.parse(parts[2].split(' ')[0]);
-        parsedDate = DateTime(y, m, d, hasJam ? jamSaved : 0, hasJam ? menitSaved : 0);
+    bool isTglInvalid = (tglLahir == '0000-00-00' || tglLahir.isEmpty);
+    if (!isTglInvalid) {
+      try {
+        final parts = tglLahir.split('-');
+        if (parts.length >= 3) {
+          final y = int.parse(parts[0]);
+          final m = int.parse(parts[1]);
+          final d = int.parse(parts[2].split(' ')[0]);
+          if (y > 0 && m > 0 && d > 0) {
+            parsedDate = DateTime(y, m, d, hasJam ? jamSaved : 0, hasJam ? menitSaved : 0);
+          }
+        }
+      } catch (_) {
+        parsedDate = null;
       }
-    } catch (_) {
-      parsedDate = DateTime(2001, 1, 1, 0, 0);
     }
 
     if (mounted) {
       setState(() {
         session = data;
-        tanggalLahirStr = tglLahir;
+        tanggalLahirStr = isTglInvalid ? '0000-00-00' : tglLahir;
         tanggalLahirDate = parsedDate;
         tahuJamLahir = hasJam;
         if (hasJam) {
@@ -87,6 +92,9 @@ class _ProfilScreenState extends State<ProfilScreen> {
         if (parsedDate != null) {
           hasilUmur = hitungUmur(parsedDate);
           hasilWeton = hitungWeton(parsedDate);
+        } else {
+          hasilUmur = null;
+          hasilWeton = null;
         }
         isLoading = false;
       });
@@ -97,7 +105,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
     final pickedDate = await showDatePicker(
       context: context,
       initialDate: tanggalLahirDate ?? DateTime(2001, 1, 1),
-      firstDate: DateTime(1900),
+      firstDate: DateTime(1500),
       lastDate: DateTime.now(),
       helpText: 'PILIH TANGGAL LAHIR SAYA',
     );
@@ -294,6 +302,39 @@ class _ProfilScreenState extends State<ProfilScreen> {
                     ),
                   ),
 
+                  if (tanggalLahirDate == null || tanggalLahirStr == '0000-00-00') ...[
+                    const SizedBox(height: 16),
+                    InkWell(
+                      onTap: () => _ubahTanggalLahir(context),
+                      borderRadius: BorderRadius.circular(14),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFEF3C7),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: const Color(0xFFFCD34D)),
+                        ),
+                        child: const Row(
+                          children: [
+                            Icon(Icons.warning_amber_rounded, color: Color(0xFFD97706), size: 22),
+                            SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                'Tanggal lahir belum di-set. Ketuk di sini untuk mengatur tanggal lahir Anda!',
+                                style: TextStyle(
+                                  color: Color(0xFF92400E),
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                            Icon(Icons.chevron_right, color: Color(0xFFD97706), size: 18),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+
                   const SizedBox(height: 24),
 
                   // Card Profil & Detail Umur Otomatis
@@ -333,7 +374,12 @@ class _ProfilScreenState extends State<ProfilScreen> {
                               Text('Tanggal Lahir', style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
                               Row(
                                 children: [
-                                  Text(tanggalLahirStr ?? '-', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                                  Text(
+                                    (tanggalLahirStr == null || tanggalLahirStr == '0000-00-00')
+                                        ? 'Belum di-set'
+                                        : tanggalLahirStr!,
+                                    style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                                  ),
                                   const SizedBox(width: 6),
                                   InkWell(
                                     onTap: () => _ubahTanggalLahir(context),
