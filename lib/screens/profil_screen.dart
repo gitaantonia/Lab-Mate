@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-// [AKSES DATABASE - READ ONLY / UPDATE TANGGAL LAHIR] Impor DBHelper untuk mengelola tanggal lahir praktikan di SQLite
 import '../database/database_helper.dart';
 import '../utils/kalender_helper.dart';
 import '../utils/session_helper.dart';
@@ -41,7 +40,6 @@ class _ProfilScreenState extends State<ProfilScreen> {
     if (savedPref != null && savedPref.isNotEmpty) {
       tglLahir = savedPref;
     } else if (data?.praktikanId != null) {
-      // [AKSES DATABASE - READ ONLY] Mengambil tanggal lahir praktikan tersimpan dari SQLite
       try {
         final listP = await DBHelper.instance.getPraktikan();
         final p = listP.firstWhere(
@@ -80,7 +78,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
     }
   }
 
-  Future<void> _ubahTanggalLahir(BuildContext context) async {
+  Future<void> _ubahTanggalLahir() async {
     final picked = await showDatePicker(
       context: context,
       initialDate: tanggalLahirDate ?? DateTime(2001, 1, 1),
@@ -97,7 +95,6 @@ class _ProfilScreenState extends State<ProfilScreen> {
       await prefs.setString('tgl_lahir_${session?.username}', newTglStr);
 
       if (session?.praktikanId != null) {
-        // [AKSES DATABASE - UPDATE TANGGAL LAHIR EXISTINGS] Meng-update data tanggal lahir praktikan yang bersangkutan
         try {
           final listP = await DBHelper.instance.getPraktikan();
           final p = listP.firstWhere((item) => item['id'] == session!.praktikanId, orElse: () => {});
@@ -115,18 +112,21 @@ class _ProfilScreenState extends State<ProfilScreen> {
         }
       }
 
-      if (mounted) {
-        setState(() {
-          tanggalLahirStr = newTglStr;
-          tanggalLahirDate = picked;
-          hasilUmur = hitungUmur(picked);
-          hasilWeton = hitungWeton(picked);
-        });
+      if (!mounted) return;
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Tanggal lahir berhasil diperbarui: $newTglStr')),
-        );
-      }
+      setState(() {
+        tanggalLahirStr = newTglStr;
+        tanggalLahirDate = picked;
+        hasilUmur = hitungUmur(picked);
+        hasilWeton = hitungWeton(picked);
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Tanggal lahir berhasil diperbarui: $newTglStr'),
+          backgroundColor: const Color(0xFF059669),
+        ),
+      );
     }
   }
 
@@ -134,15 +134,22 @@ class _ProfilScreenState extends State<ProfilScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Konfirmasi Logout'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Row(
+          children: [
+            Icon(Icons.logout, color: Colors.redAccent),
+            SizedBox(width: 8),
+            Text('Konfirmasi Logout', style: TextStyle(fontSize: 18)),
+          ],
+        ),
         content: const Text('Apakah Anda yakin ingin keluar dari akun ini?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
             child: const Text('Batal'),
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: const Color(0xFFEF4444)),
             onPressed: () => Navigator.pop(context, true),
             child: const Text('Keluar'),
           ),
@@ -152,13 +159,12 @@ class _ProfilScreenState extends State<ProfilScreen> {
 
     if (confirm == true && mounted) {
       await SessionHelper.logout();
-      if (mounted) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (_) => const LoginScreen()),
-          (route) => false,
-        );
-      }
+      if (!mounted) return;
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        (route) => false,
+      );
     }
   }
 
@@ -166,49 +172,86 @@ class _ProfilScreenState extends State<ProfilScreen> {
   Widget build(BuildContext context) {
     final bd = hasilUmur?['breakdown'];
     final nama = session?.nama ?? 'Pengguna';
-    final role = session?.role == 'aslab' ? 'Asisten Laboratorium' : 'Praktikan';
+    final role = session?.role == 'aslab' ? 'Asisten Laboratorium' : 'Mahasiswa Praktikan';
+    final isAslab = session?.role == 'aslab';
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        title: const Text('Profil Saya'),
-        centerTitle: true,
+        title: const Text('Profil Pengguna'),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-              padding: const EdgeInsets.all(20.0),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
               child: Column(
                 children: [
-                  // Avatar Header
-                  Center(
+                  // =========================
+                  // HEADER PROFILE CARD
+                  // =========================
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.02),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
                     child: Column(
                       children: [
                         CircleAvatar(
-                          radius: 46,
-                          backgroundColor: Colors.blue.shade100,
+                          radius: 42,
+                          backgroundColor: isAslab ? const Color(0xFFEFF6FF) : const Color(0xFFF0FDF4),
                           child: Text(
                             nama.isNotEmpty ? nama[0].toUpperCase() : '?',
-                            style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Colors.blue.shade800),
+                            style: TextStyle(
+                              fontSize: 32,
+                              fontWeight: FontWeight.w800,
+                              color: isAslab ? const Color(0xFF1E40AF) : const Color(0xFF047857),
+                            ),
                           ),
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 14),
                         Text(
                           nama,
-                          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF0F172A),
+                          ),
                         ),
                         const SizedBox(height: 4),
+                        Text(
+                          'Username: ${session?.username ?? '-'}',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                           decoration: BoxDecoration(
-                            color: session?.role == 'aslab' ? Colors.blue.shade50 : Colors.green.shade50,
-                            borderRadius: BorderRadius.circular(12),
+                            color: isAslab ? const Color(0xFFEFF6FF) : const Color(0xFFF0FDF4),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: isAslab ? const Color(0xFFBFDBFE) : const Color(0xFFBBF7D0),
+                            ),
                           ),
                           child: Text(
                             role,
                             style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: session?.role == 'aslab' ? Colors.blue.shade700 : Colors.green.shade700,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: isAslab ? const Color(0xFF1E40AF) : const Color(0xFF047857),
                             ),
                           ),
                         ),
@@ -216,113 +259,154 @@ class _ProfilScreenState extends State<ProfilScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
 
-                  // Card Profil & Detail Umur Otomatis
-                  Card(
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    child: Padding(
-                      padding: const EdgeInsets.all(18.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Row(
-                                children: [
-                                  Icon(Icons.cake, color: Colors.pinkAccent),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    'Kalkulator Umur Diri Sendiri',
-                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  // =========================
+                  // CARD DETAIL UMUR & WETON
+                  // =========================
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(18.0),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Row(
+                              children: [
+                                Icon(Icons.cake_rounded, color: Color(0xFFDB2777), size: 20),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Kalkulator Umur Pribadi',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 15,
+                                    color: Color(0xFF0F172A),
                                   ),
-                                ],
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.edit_calendar, color: Colors.blue),
-                                tooltip: 'Ubah Tanggal Lahir',
-                                onPressed: () => _ubahTanggalLahir(context),
-                              ),
-                            ],
-                          ),
-                          const Divider(height: 16),
-
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text('Tanggal Lahir', style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
-                              Row(
-                                children: [
-                                  Text(tanggalLahirStr ?? '-', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                                  const SizedBox(width: 6),
-                                  InkWell(
-                                    onTap: () => _ubahTanggalLahir(context),
-                                    child: const Text('(Ubah)', style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 12)),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-
-                          if (hasilWeton != null) ...[
-                            _infoRow('Weton Lahir', hasilWeton!['weton'] ?? '-'),
-                            const SizedBox(height: 10),
-                          ],
-
-                          if (bd != null) ...[
-                            const SizedBox(height: 4),
-                            Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.all(14),
-                              decoration: BoxDecoration(
-                                color: Colors.pink.shade50.withOpacity(0.5),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: Colors.pink.shade100),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'Usia Otomatis Terhitung:',
-                                    style: TextStyle(fontSize: 12, color: Colors.pink, fontWeight: FontWeight.bold),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    '${bd['tahun']} Tahun, ${bd['bulan']} Bulan, ${bd['hari']} Hari',
-                                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF880E4F)),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    'Presisi: ${bd['jam']} jam ${bd['menit']} m ${bd['detik']} d',
-                                    style: TextStyle(fontSize: 12, color: Colors.pink.shade700),
-                                  ),
-                                ],
-                              ),
+                                ),
+                              ],
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.edit_calendar_rounded, color: Color(0xFF2563EB), size: 20),
+                              tooltip: 'Ubah Tanggal Lahir',
+                              onPressed: _ubahTanggalLahir,
                             ),
                           ],
+                        ),
+                        const Divider(height: 20),
+
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Tanggal Lahir',
+                              style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                            ),
+                            Row(
+                              children: [
+                                Text(
+                                  tanggalLahirStr ?? '-',
+                                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                                ),
+                                const SizedBox(width: 6),
+                                InkWell(
+                                  onTap: _ubahTanggalLahir,
+                                  child: const Text(
+                                    '(Ubah)',
+                                    style: TextStyle(
+                                      color: Color(0xFF2563EB),
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+
+                        if (hasilWeton != null) ...[
+                          _infoRow('Weton Kelahiran Jawa', hasilWeton!['weton'] ?? '-'),
+                          const SizedBox(height: 12),
                         ],
-                      ),
+
+                        if (bd != null) ...[
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(14),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFDF2F8),
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(color: const Color(0xFFFBCFE8)),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Usia Otomatis Terhitung:',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Color(0xFFDB2777),
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '${bd['tahun']} Tahun, ${bd['bulan']} Bulan, ${bd['hari']} Hari',
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w800,
+                                    color: Color(0xFF831843),
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  'Presisi: ${bd['jam']} jam ${bd['menit']} menit ${bd['detik']} detik',
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: Color(0xFFBE185D),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
 
-                  // Tombol Logout
+                  // =========================
+                  // TOMBOL LOGOUT
+                  // =========================
                   SizedBox(
                     width: double.infinity,
-                    child: ElevatedButton.icon(
+                    height: 50,
+                    child: OutlinedButton.icon(
                       onPressed: _handleLogout,
-                      icon: const Icon(Icons.logout),
-                      label: const Text('Keluar dari Akun'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red.shade50,
-                        foregroundColor: Colors.red,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      icon: const Icon(Icons.logout_rounded, color: Color(0xFFEF4444), size: 20),
+                      label: const Text(
+                        'Keluar dari Akun',
+                        style: TextStyle(
+                          color: Color(0xFFEF4444),
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Color(0xFFFCA5A5)),
+                        backgroundColor: const Color(0xFFFEF2F2),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
                       ),
                     ),
                   ),
@@ -336,8 +420,8 @@ class _ProfilScreenState extends State<ProfilScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
-        Text(value, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+        Text(label, style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
+        Text(value, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: Color(0xFF0F172A))),
       ],
     );
   }

@@ -14,7 +14,6 @@ class _LihatNilaiScreenState extends State<LihatNilaiScreen> {
   bool isLoading = true;
 
   List<Map<String, dynamic>> listNilai = [];
-
   double? nilaiAkhir;
 
   String? namaPraktikan;
@@ -94,9 +93,25 @@ class _LihatNilaiScreenState extends State<LihatNilaiScreen> {
     }
   }
 
+  Color _getGradeColor(String grade) {
+    switch (grade) {
+      case 'A':
+        return const Color(0xFF059669);
+      case 'B':
+        return const Color(0xFF2563EB);
+      case 'C':
+        return const Color(0xFFD97706);
+      case 'D':
+      case 'E':
+      default:
+        return const Color(0xFFE11D48);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         title: const Text('Komputasi Nilai Saya'),
       ),
@@ -105,116 +120,128 @@ class _LihatNilaiScreenState extends State<LihatNilaiScreen> {
               child: CircularProgressIndicator(),
             )
           : SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // =========================
                   // CARD PROFIL PRAKTIKAN
                   // =========================
-                  Card(
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                  Container(
+                    padding: const EdgeInsets.all(16.0),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 24,
-                            backgroundColor: Colors.blue.shade100,
-                            child: const Icon(
-                              Icons.person,
-                              color: Colors.blue,
-                              size: 28,
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 24,
+                          backgroundColor: const Color(0xFFEFF6FF),
+                          child: Text(
+                            (namaPraktikan != null && namaPraktikan!.isNotEmpty)
+                                ? namaPraktikan![0].toUpperCase()
+                                : '?',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF2563EB),
                             ),
                           ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  namaPraktikan ?? 'Praktikan',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                namaPraktikan ?? 'Praktikan',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 16,
+                                  color: Color(0xFF0F172A),
                                 ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  'NIM: ${nimPraktikan ?? '-'}',
-                                  style: TextStyle(
-                                    color: Colors.grey.shade600,
-                                    fontSize: 13,
-                                  ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                'NIM: ${nimPraktikan ?? '-'}',
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                  fontSize: 13,
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
 
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 14),
 
                   // =========================
                   // NILAI AKHIR & GRADE
                   // =========================
                   if (nilaiAkhir != null) ...[
-                    Card(
-                      elevation: 3,
-                      color: Colors.blue.shade50,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 24.0,
+                        horizontal: 16.0,
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 24.0,
-                          horizontal: 16.0,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [Color(0xFFEFF6FF), Color(0xFFDBEAFE)],
                         ),
-                        child: Column(
-                          children: [
-                            const Text(
-                              'Nilai Akhir Terakumulasi',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.blueGrey,
-                                fontWeight: FontWeight.w500,
-                              ),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: const Color(0xFFBFDBFE)),
+                      ),
+                      child: Column(
+                        children: [
+                          const Text(
+                            'Nilai Akhir Terakumulasi',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Color(0xFF1E40AF),
+                              fontWeight: FontWeight.w600,
                             ),
-                            const SizedBox(height: 8),
-                            Text(
-                              nilaiAkhir!.toStringAsFixed(2),
-                              style: TextStyle(
-                                fontSize: 44,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue.shade900,
-                              ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            nilaiAkhir!.toStringAsFixed(2),
+                            style: const TextStyle(
+                              fontSize: 42,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF1E3A8A),
+                              letterSpacing: -1,
                             ),
-                            const SizedBox(height: 6),
-                            Container(
+                          ),
+                          const SizedBox(height: 8),
+                          Builder(builder: (context) {
+                            final grade = KomputasiHelper.tentukanGrade(nilaiAkhir!);
+                            final color = _getGradeColor(grade);
+                            return Container(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
+                                horizontal: 18,
                                 vertical: 6,
                               ),
                               decoration: BoxDecoration(
-                                color: Colors.blue.shade700,
+                                color: color,
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Text(
-                                'Grade: ${KomputasiHelper.tentukanGrade(nilaiAkhir!)}',
+                                'Grade $grade',
                                 style: const TextStyle(
                                   color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 14,
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
+                            );
+                          }),
+                        ],
                       ),
                     ),
 
@@ -227,200 +254,174 @@ class _LihatNilaiScreenState extends State<LihatNilaiScreen> {
                   const Text(
                     'Rincian Komponen Nilai',
                     style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 15,
+                      color: Color(0xFF1E293B),
                     ),
                   ),
 
                   const SizedBox(height: 10),
 
                   if (listNilai.isEmpty)
-                    Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(24.0),
-                        child: Column(
-                          children: [
-                            Icon(
-                              Icons.info_outline,
-                              color: Colors.grey.shade400,
+                    Container(
+                      padding: const EdgeInsets.all(32.0),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF2563EB).withValues(alpha: 0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.analytics_outlined,
+                              color: Color(0xFF2563EB),
                               size: 40,
                             ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Belum ada nilai yang diinputkan oleh Aslab.',
-                              style: TextStyle(
-                                color: Colors.grey.shade600,
-                              ),
-                              textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 14),
+                          const Text(
+                            'Belum Ada Nilai',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF1E293B),
                             ),
-                          ],
-                        ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Nilai Anda belum diinputkan oleh Asisten Laboratorium.',
+                            style: TextStyle(
+                              color: Colors.grey.shade600,
+                              fontSize: 13,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
                       ),
                     )
                   else
-                    Card(
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: DataTable(
-                            columnSpacing: 20,
-                            headingRowColor:
-                                WidgetStateProperty.all(
-                              Colors.blue.shade50,
-                            ),
-                            columns: const [
-                              DataColumn(
-                                label: Text(
-                                  'Komponen',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                              DataColumn(
-                                label: Text(
-                                  'Skor',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                numeric: true,
-                              ),
-                              DataColumn(
-                                label: Text(
-                                  'Bobot',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                numeric: true,
-                              ),
-                              DataColumn(
-                                label: Text(
-                                  'Nilai Terbobot',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                numeric: true,
-                              ),
-                            ],
-                            rows: [
-                              // Baris setiap komponen
-                              ...listNilai.map(
-                                (item) {
-                                  final namaComp =
-                                      item['nama_komponen']
-                                              ?.toString() ??
-                                          '-';
-
-                                  final bobot =
-                                      (item['bobot'] as num?)
-                                              ?.toDouble() ??
-                                          0.0;
-
-                                  final skor =
-                                      (item['skor'] as num?)
-                                              ?.toDouble() ??
-                                          0.0;
-
-                                  final nilaiTerbobot =
-                                      skor * bobot / 100;
-
-                                  return DataRow(
-                                    cells: [
-                                      DataCell(
-                                        Text(namaComp),
-                                      ),
-                                      DataCell(
-                                        Text(
-                                          skor.toStringAsFixed(1),
-                                        ),
-                                      ),
-                                      DataCell(
-                                        Text(
-                                          '${bobot.toStringAsFixed(0)}%',
-                                        ),
-                                      ),
-                                      DataCell(
-                                        Text(
-                                          nilaiTerbobot
-                                              .toStringAsFixed(2),
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              ),
-
-                              // Baris TOTAL
-                              DataRow(
-                                cells: [
-                                  const DataCell(
-                                    Text(
-                                      'TOTAL',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                  const DataCell(
-                                    Text('-'),
-                                  ),
-                                  DataCell(
-                                    Text(
-                                      '${listNilai.fold<double>(
-                                        0.0,
-                                        (total, item) =>
-                                            total +
-                                            ((item['bobot'] as num?)
-                                                    ?.toDouble() ??
-                                                0.0),
-                                      ).toStringAsFixed(0)}%',
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                  DataCell(
-                                    Text(
-                                      listNilai
-                                          .fold<double>(
-                                            0.0,
-                                            (total, item) {
-                                              final skor =
-                                                  (item['skor']
-                                                              as num?)
-                                                          ?.toDouble() ??
-                                                      0.0;
-
-                                              final bobot =
-                                                  (item['bobot']
-                                                              as num?)
-                                                          ?.toDouble() ??
-                                                      0.0;
-
-                                              return total +
-                                                  (skor *
-                                                          bobot /
-                                                          100);
-                                            },
-                                          )
-                                          .toStringAsFixed(2),
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
+                      clipBehavior: Clip.antiAlias,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: DataTable(
+                          columnSpacing: 24,
+                          headingRowColor: WidgetStateProperty.all(
+                            const Color(0xFFF1F5F9),
                           ),
+                          headingTextStyle: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF1E293B),
+                            fontSize: 13,
+                          ),
+                          columns: const [
+                            DataColumn(
+                              label: Text('Komponen'),
+                            ),
+                            DataColumn(
+                              label: Text('Skor'),
+                              numeric: true,
+                            ),
+                            DataColumn(
+                              label: Text('Bobot'),
+                              numeric: true,
+                            ),
+                            DataColumn(
+                              label: Text('Nilai Terbobot'),
+                              numeric: true,
+                            ),
+                          ],
+                          rows: [
+                            // Baris setiap komponen
+                            ...listNilai.map(
+                              (item) {
+                                final namaComp =
+                                    item['nama_komponen']?.toString() ?? '-';
+                                final bobot =
+                                    (item['bobot'] as num?)?.toDouble() ?? 0.0;
+                                final skor =
+                                    (item['skor'] as num?)?.toDouble() ?? 0.0;
+                                final nilaiTerbobot = skor * bobot / 100;
+
+                                return DataRow(
+                                  cells: [
+                                    DataCell(Text(namaComp)),
+                                    DataCell(Text(skor.toStringAsFixed(1))),
+                                    DataCell(Text('${bobot.toStringAsFixed(0)}%')),
+                                    DataCell(
+                                      Text(
+                                        nilaiTerbobot.toStringAsFixed(2),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+
+                            // Baris TOTAL
+                            DataRow(
+                              color: WidgetStateProperty.all(const Color(0xFFF8FAFC)),
+                              cells: [
+                                const DataCell(
+                                  Text(
+                                    'TOTAL',
+                                    style: TextStyle(fontWeight: FontWeight.w800),
+                                  ),
+                                ),
+                                const DataCell(Text('-')),
+                                DataCell(
+                                  Text(
+                                    '${listNilai.fold<double>(
+                                      0.0,
+                                      (total, item) =>
+                                          total +
+                                          ((item['bobot'] as num?)
+                                                  ?.toDouble() ??
+                                              0.0),
+                                    ).toStringAsFixed(0)}%',
+                                    style: const TextStyle(fontWeight: FontWeight.w800),
+                                  ),
+                                ),
+                                DataCell(
+                                  Text(
+                                    listNilai
+                                        .fold<double>(
+                                          0.0,
+                                          (total, item) {
+                                            final skor = (item['skor'] as num?)
+                                                    ?.toDouble() ??
+                                                0.0;
+                                            final bobot = (item['bobot'] as num?)
+                                                    ?.toDouble() ??
+                                                0.0;
+                                            return total + (skor * bobot / 100);
+                                          },
+                                        )
+                                        .toStringAsFixed(2),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w800,
+                                      color: Color(0xFF1E40AF),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -430,4 +431,3 @@ class _LihatNilaiScreenState extends State<LihatNilaiScreen> {
     );
   }
 }
-
