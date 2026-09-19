@@ -17,6 +17,9 @@ class _ProfilScreenState extends State<ProfilScreen> {
   SessionData? session;
   String? tanggalLahirStr;
   DateTime? tanggalLahirDate;
+  TimeOfDay? jamLahirTime;
+  bool tahuJamLahir = false;
+
   Map<String, dynamic>? hasilUmur;
   Map<String, String>? hasilWeton;
   bool isLoading = true;
@@ -33,6 +36,9 @@ class _ProfilScreenState extends State<ProfilScreen> {
     final prefs = await SharedPreferences.getInstance();
 
     String tglLahir = '2001-01-01'; // Default acuan
+    bool hasJam = prefs.getBool('tahu_jam_${data?.username}') ?? false;
+    int jamSaved = prefs.getInt('jam_lahir_${data?.username}') ?? 0;
+    int menitSaved = prefs.getInt('menit_lahir_${data?.username}') ?? 0;
 
     // Cek penyimpanan kustom per akun di SharedPreferences
     final prefKey = 'tgl_lahir_${data?.username}';
@@ -59,11 +65,14 @@ class _ProfilScreenState extends State<ProfilScreen> {
     DateTime? parsedDate;
     try {
       final parts = tglLahir.split('-');
-      if (parts.length == 3) {
-        parsedDate = DateTime(int.parse(parts[0]), int.parse(parts[1]), int.parse(parts[2]));
+      if (parts.length >= 3) {
+        final y = int.parse(parts[0]);
+        final m = int.parse(parts[1]);
+        final d = int.parse(parts[2].split(' ')[0]);
+        parsedDate = DateTime(y, m, d, hasJam ? jamSaved : 0, hasJam ? menitSaved : 0);
       }
     } catch (_) {
-      parsedDate = DateTime(2001, 1, 1);
+      parsedDate = DateTime(2001, 1, 1, 0, 0);
     }
 
     if (mounted) {
@@ -71,6 +80,10 @@ class _ProfilScreenState extends State<ProfilScreen> {
         session = data;
         tanggalLahirStr = tglLahir;
         tanggalLahirDate = parsedDate;
+        tahuJamLahir = hasJam;
+        if (hasJam) {
+          jamLahirTime = TimeOfDay(hour: jamSaved, minute: menitSaved);
+        }
         if (parsedDate != null) {
           hasilUmur = hitungUmur(parsedDate);
           hasilWeton = hitungWeton(parsedDate);
@@ -81,7 +94,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
   }
 
   Future<void> _ubahTanggalLahir(BuildContext context) async {
-    final picked = await showDatePicker(
+    final pickedDate = await showDatePicker(
       context: context,
       initialDate: tanggalLahirDate ?? DateTime(2001, 1, 1),
       firstDate: DateTime(1900),
@@ -89,44 +102,109 @@ class _ProfilScreenState extends State<ProfilScreen> {
       helpText: 'PILIH TANGGAL LAHIR SAYA',
     );
 
-    if (picked != null) {
-      final newTglStr =
-          '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
+    if (pickedDate == null) return;
 
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('tgl_lahir_${session?.username}', newTglStr);
+    // Tanya apakah tahu jam lahir
+    final bool? inginInputJam = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.access_time, color: Colors.blue),
+            SizedBox(width: 8),
+            Text('Jam Lahir'),
+          ],
+        ),
+        content: const Text('Apakah Anda mengetahui jam lahir Anda secara spesifik?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Tidak (Pukul 00:00)'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Ya, Input Jam'),
+          ),
+        ],
+      ),
+    );
 
-      if (session?.praktikanId != null) {
-        // [AKSES DATABASE - UPDATE TANGGAL LAHIR EXISTINGS] Meng-update data tanggal lahir praktikan yang bersangkutan
-        try {
-          final listP = await DBHelper.instance.getPraktikan();
-          final p = listP.firstWhere((item) => item['id'] == session!.praktikanId, orElse: () => {});
-          if (p.isNotEmpty) {
-            await DBHelper.instance.updatePraktikan(
-              id: session!.praktikanId!,
-              mataPraktikumId: p['mata_praktikum_id'] as int? ?? 1,
-              nim: p['nim'] as String? ?? session!.username,
-              nama: p['nama'] as String? ?? session!.nama,
-              tanggalLahir: newTglStr,
-            );
-          }
-        } catch (e) {
-          debugPrint('Gagal update tanggal lahir praktikan di DB: $e');
+    TimeOfDay chosenTime = const TimeOfDay(hour: 0, minute: 0);
+    bool userKnowsTime = inginInputJam ?? false;
+
+    if (userKnowsTime && mounted) {
+      final pickedTime = await showTimePicker(
+        context: context,
+        initialTime: jamLahirTime ?? const TimeOfDay(hour: 8, minute: 0),
+        helpText: 'PILIH JAM LAHIR SAYA',
+      );
+      if (pickedTime != null) {
+        chosenTime = pickedTime;
+      } else {
+        userKnowsTime = false;
+      }
+    }
+
+    final combinedDateTime = DateTime(
+      pickedDate.year,
+      pickedDate.month,
+      pickedDate.day,
+      userKnowsTime ? chosenTime.hour : 0,
+      userKnowsTime ? chosenTime.minute : 0,
+    );
+
+    final newTglStr =
+        '${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}';
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('tgl_lahir_${session?.username}', newTglStr);
+    await prefs.setBool('tahu_jam_${session?.username}', userKnowsTime);
+    if (userKnowsTime) {
+      await prefs.setInt('jam_lahir_${session?.username}', chosenTime.hour);
+      await prefs.setInt('menit_lahir_${session?.username}', chosenTime.minute);
+    } else {
+      await prefs.remove('jam_lahir_${session?.username}');
+      await prefs.remove('menit_lahir_${session?.username}');
+    }
+
+    if (session?.praktikanId != null) {
+      // [AKSES DATABASE - UPDATE TANGGAL LAHIR EXISTINGS] Meng-update data tanggal lahir praktikan yang bersangkutan
+      try {
+        final listP = await DBHelper.instance.getPraktikan();
+        final p = listP.firstWhere((item) => item['id'] == session!.praktikanId, orElse: () => {});
+        if (p.isNotEmpty) {
+          await DBHelper.instance.updatePraktikan(
+            id: session!.praktikanId!,
+            mataPraktikumId: p['mata_praktikum_id'] as int? ?? 1,
+            nim: p['nim'] as String? ?? session!.username,
+            nama: p['nama'] as String? ?? session!.nama,
+            tanggalLahir: newTglStr,
+          );
         }
+      } catch (e) {
+        debugPrint('Gagal update tanggal lahir praktikan di DB: $e');
       }
+    }
 
-      if (mounted) {
-        setState(() {
-          tanggalLahirStr = newTglStr;
-          tanggalLahirDate = picked;
-          hasilUmur = hitungUmur(picked);
-          hasilWeton = hitungWeton(picked);
-        });
+    if (mounted) {
+      setState(() {
+        tanggalLahirStr = newTglStr;
+        tanggalLahirDate = combinedDateTime;
+        tahuJamLahir = userKnowsTime;
+        jamLahirTime = userKnowsTime ? chosenTime : null;
+        hasilUmur = hitungUmur(combinedDateTime);
+        hasilWeton = hitungWeton(combinedDateTime);
+      });
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Tanggal lahir berhasil diperbarui: $newTglStr')),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            userKnowsTime
+                ? 'Tanggal & Jam Lahir diperbarui: $newTglStr (${chosenTime.format(context)})'
+                : 'Tanggal Lahir diperbarui: $newTglStr (Default 00:00)',
+          ),
+        ),
+      );
     }
   }
 
@@ -242,7 +320,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
                               ),
                               IconButton(
                                 icon: const Icon(Icons.edit_calendar, color: Colors.blue),
-                                tooltip: 'Ubah Tanggal Lahir',
+                                tooltip: 'Ubah Tanggal / Jam Lahir',
                                 onPressed: () => _ubahTanggalLahir(context),
                               ),
                             ],
@@ -262,6 +340,24 @@ class _ProfilScreenState extends State<ProfilScreen> {
                                     child: const Text('(Ubah)', style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 12)),
                                   ),
                                 ],
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('Jam Lahir Spesifik', style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
+                              Text(
+                                tahuJamLahir && jamLahirTime != null
+                                    ? jamLahirTime!.format(context)
+                                    : 'Tidak Ada (00:00)',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                  color: tahuJamLahir ? Colors.blue.shade700 : Colors.grey.shade700,
+                                ),
                               ),
                             ],
                           ),
@@ -297,7 +393,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
                                   const SizedBox(height: 2),
                                   Text(
                                     'Presisi: ${bd['jam']} jam ${bd['menit']} m ${bd['detik']} d',
-                                    style: TextStyle(fontSize: 12, color: Colors.pink.shade700),
+                                    style: TextStyle(fontSize: 12, color: Colors.pink.shade700, fontWeight: FontWeight.w600),
                                   ),
                                 ],
                               ),

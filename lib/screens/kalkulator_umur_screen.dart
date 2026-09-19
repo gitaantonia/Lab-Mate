@@ -10,6 +10,9 @@ class KalkulatorUmurScreen extends StatefulWidget {
 
 class _KalkulatorUmurScreenState extends State<KalkulatorUmurScreen> {
   DateTime selectedDate = DateTime.now().subtract(const Duration(days: 365 * 20));
+  TimeOfDay selectedTime = const TimeOfDay(hour: 0, minute: 0);
+  bool tahuJamLahir = false;
+
   Map<String, dynamic>? hasilUmur;
 
   @override
@@ -19,8 +22,25 @@ class _KalkulatorUmurScreenState extends State<KalkulatorUmurScreen> {
   }
 
   void _hitung() {
+    final combinedDate = tahuJamLahir
+        ? DateTime(
+            selectedDate.year,
+            selectedDate.month,
+            selectedDate.day,
+            selectedTime.hour,
+            selectedTime.minute,
+          )
+        : DateTime(
+            selectedDate.year,
+            selectedDate.month,
+            selectedDate.day,
+            0,
+            0,
+            0,
+          );
+
     setState(() {
-      hasilUmur = hitungUmur(selectedDate);
+      hasilUmur = hitungUmur(combinedDate);
     });
   }
 
@@ -31,9 +51,22 @@ class _KalkulatorUmurScreenState extends State<KalkulatorUmurScreen> {
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
     );
-    if (picked != null && picked != selectedDate) {
+    if (picked != null) {
       setState(() {
         selectedDate = picked;
+      });
+      _hitung();
+    }
+  }
+
+  Future<void> _pilihJam(BuildContext context) async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: selectedTime,
+    );
+    if (picked != null) {
+      setState(() {
+        selectedTime = picked;
       });
       _hitung();
     }
@@ -53,7 +86,7 @@ class _KalkulatorUmurScreenState extends State<KalkulatorUmurScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Card Input Tanggal
+            // Card Input Tanggal & Jam
             Card(
               elevation: 2,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -89,13 +122,76 @@ class _KalkulatorUmurScreenState extends State<KalkulatorUmurScreen> {
                         ElevatedButton.icon(
                           onPressed: () => _pilihTanggal(context),
                           icon: const Icon(Icons.calendar_today),
-                          label: const Text('Pilih'),
+                          label: const Text('Pilih Tanggal'),
                           style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
                           ),
                         ),
                       ],
                     ),
+
+                    const Divider(height: 24),
+
+                    // Opsi Jam Lahir
+                    SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: const Text(
+                        'Tahu Jam Lahir?',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                      ),
+                      subtitle: Text(
+                        tahuJamLahir
+                            ? 'Menghitung presisi dari jam ${selectedTime.format(context)}'
+                            : 'Default (dianggap pukul 00:00 WIB)',
+                        style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                      ),
+                      value: tahuJamLahir,
+                      onChanged: (val) {
+                        setState(() {
+                          tahuJamLahir = val;
+                        });
+                        _hitung();
+                      },
+                    ),
+
+                    if (tahuJamLahir) ...[
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                              decoration: BoxDecoration(
+                                color: Colors.blue.shade50,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: Colors.blue.shade200),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.access_time, color: Colors.blue, size: 20),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Jam Lahir: ${selectedTime.format(context)}',
+                                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.blue),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          ElevatedButton.icon(
+                            onPressed: () => _pilihJam(context),
+                            icon: const Icon(Icons.time_to_leave_outlined),
+                            label: const Text('Pilih Jam'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue.shade600,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -130,7 +226,7 @@ class _KalkulatorUmurScreenState extends State<KalkulatorUmurScreen> {
                       const SizedBox(height: 4),
                       Text(
                         '${bd['jam']} jam, ${bd['menit']} menit, ${bd['detik']} detik',
-                        style: TextStyle(fontSize: 14, color: Colors.blue.shade700),
+                        style: TextStyle(fontSize: 14, color: Colors.blue.shade700, fontWeight: FontWeight.w600),
                       ),
                     ],
                   ),
