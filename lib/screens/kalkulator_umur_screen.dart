@@ -89,7 +89,7 @@ class _KalkulatorUmurScreenState extends State<KalkulatorUmurScreen> {
             // Card Input Tanggal & Jam
             Card(
               elevation: 2,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -121,10 +121,15 @@ class _KalkulatorUmurScreenState extends State<KalkulatorUmurScreen> {
                         const SizedBox(width: 12),
                         ElevatedButton.icon(
                           onPressed: () => _pilihTanggal(context),
-                          icon: const Icon(Icons.calendar_today),
-                          label: const Text('Pilih Tanggal'),
+                          icon: const Icon(Icons.edit_calendar_rounded, size: 18),
+                          label: const Text('Ubah'),
                           style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                            backgroundColor: const Color(0xFF1E40AF),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
                         ),
                       ],
@@ -201,35 +206,52 @@ class _KalkulatorUmurScreenState extends State<KalkulatorUmurScreen> {
 
             if (bd != null && tot != null) ...[
               // Card Hasil Breakdown
-              Card(
-                elevation: 2,
-                color: Colors.blue.shade50,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      const Text(
-                        'Usia Anda Saat Ini',
-                        style: TextStyle(fontSize: 14, color: Colors.blueGrey, fontWeight: FontWeight.w500),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        '${bd['tahun']} Tahun ${bd['bulan']} Bulan ${bd['hari']} Hari',
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue.shade900,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${bd['jam']} jam, ${bd['menit']} menit, ${bd['detik']} detik',
-                        style: TextStyle(fontSize: 14, color: Colors.blue.shade700, fontWeight: FontWeight.w600),
-                      ),
-                    ],
+              Container(
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF1E40AF), Color(0xFF3B82F6)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF1E40AF).withOpacity(0.25),
+                      blurRadius: 16,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+                child: Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Text(
+                        'Usia Anda Saat Ini',
+                        style: TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      '${bd['tahun']} Tahun ${bd['bulan']} Bulan ${bd['hari']} Hari',
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      '${bd['jam']} jam, ${bd['menit']} menit, ${bd['detik']} detik',
+                      style: const TextStyle(fontSize: 14, color: Colors.white70, fontWeight: FontWeight.w500),
+                    ),
+                  ],
                 ),
               ),
 

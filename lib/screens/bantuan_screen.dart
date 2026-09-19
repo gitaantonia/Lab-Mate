@@ -33,11 +33,12 @@ class _BantuanScreenState extends State<BantuanScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Row(
           children: [
             Icon(Icons.logout, color: Colors.redAccent),
             SizedBox(width: 8),
-            Text('Konfirmasi Logout'),
+            Text('Konfirmasi Logout', style: TextStyle(fontSize: 18)),
           ],
         ),
         content: const Text('Apakah Anda yakin ingin keluar dari sesi LabMate?'),
@@ -48,7 +49,7 @@ class _BantuanScreenState extends State<BantuanScreen> {
           ),
           FilledButton(
             style: FilledButton.styleFrom(
-              backgroundColor: Colors.redAccent,
+              backgroundColor: const Color(0xFFEF4444),
             ),
             onPressed: () => Navigator.pop(context, true),
             child: const Text('Logout'),
@@ -69,148 +70,193 @@ class _BantuanScreenState extends State<BantuanScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     final username = _session?.username ?? 'Pengguna';
-    final role = _session?.role == 'aslab' ? 'Asisten Laboratorium' : 'Praktikan';
+    final role = _session?.role == 'aslab' ? 'Asisten Laboratorium' : 'Mahasiswa Praktikan';
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         title: const Text('Pusat Bantuan & Info'),
-        centerTitle: true,
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         children: [
           // App Identity Header Card
-          Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            color: colorScheme.primaryContainer,
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 30,
-                    backgroundColor: colorScheme.primary,
-                    child: const Icon(
-                      Icons.science_rounded,
-                      size: 32,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              'LabMate',
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: colorScheme.onPrimaryContainer,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: colorScheme.primary.withAlpha(50),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Text(
-                                'v1.0.0',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                  color: colorScheme.primary,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Asisten Digital Manajemen & Penilaian Praktikum Laboratorium',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: colorScheme.onPrimaryContainer.withAlpha(200),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF1E40AF), Color(0xFF2563EB)],
               ),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF1E40AF).withValues(alpha: 0.25),
+                  blurRadius: 16,
+                  offset: const Offset(0, 6),
+                ),
+              ],
             ),
-          ),
-          const SizedBox(height: 16),
-
-          // Logged-in User Card
-          Card(
-            elevation: 1,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              leading: CircleAvatar(
-                backgroundColor: colorScheme.secondaryContainer,
-                child: Text(
-                  username.isNotEmpty ? username[0].toUpperCase() : '?',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: colorScheme.onSecondaryContainer,
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Icon(
+                    Icons.science_rounded,
+                    size: 32,
+                    color: Colors.white,
                   ),
                 ),
-              ),
-              title: Text(
-                _isLoadingSession ? 'Memuat profil...' : username,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-              subtitle: Text(
-                _isLoadingSession ? '' : role,
-                style: TextStyle(color: colorScheme.onSurfaceVariant),
-              ),
-              trailing: Chip(
-                avatar: const Icon(Icons.check_circle, size: 16, color: Colors.green),
-                label: const Text('Aktif', style: TextStyle(fontSize: 11)),
-                backgroundColor: Colors.green.withAlpha(20),
-                side: BorderSide.none,
-              ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Text(
+                            'LabMate',
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                              letterSpacing: -0.3,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.25),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Text(
+                              'v1.0.0',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Asisten Digital Manajemen & Penilaian Praktikum Laboratorium',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.white.withValues(alpha: 0.9),
+                          height: 1.3,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+
+          // Logged-in User Card
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+            ),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 20,
+                  backgroundColor: const Color(0xFFEFF6FF),
+                  child: Text(
+                    username.isNotEmpty ? username[0].toUpperCase() : '?',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF2563EB),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _isLoadingSession ? 'Memuat profil...' : username,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                          color: Color(0xFF0F172A),
+                        ),
+                      ),
+                      Text(
+                        _isLoadingSession ? '' : role,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFECFDF5),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.check_circle, size: 14, color: Color(0xFF059669)),
+                      SizedBox(width: 4),
+                      Text(
+                        'Aktif',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF059669),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 20),
 
           // Section Header: Panduan Penggunaan
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-            child: Text(
-              'Panduan Penggunaan',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: colorScheme.onSurface,
-              ),
+          const Text(
+            'Panduan Penggunaan',
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF1E293B),
             ),
           ),
+          const SizedBox(height: 10),
 
           // Accordion Guides
-          Card(
-            elevation: 1,
-            shape: RoundedRectangleBorder(
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
               borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
             ),
             clipBehavior: Clip.antiAlias,
             child: Column(
               children: [
                 _buildGuideTile(
-                  context,
                   icon: Icons.admin_panel_settings_outlined,
                   title: 'Akses & Peran Pengguna',
                   subtitle: 'Perbedaan hak akses Aslab dan Praktikan',
@@ -219,7 +265,6 @@ class _BantuanScreenState extends State<BantuanScreen> {
                 ),
                 const Divider(height: 1),
                 _buildGuideTile(
-                  context,
                   icon: Icons.menu_book_outlined,
                   title: 'Kelola Praktikum & Praktikan',
                   subtitle: 'Navigasi dan manajemen data',
@@ -228,16 +273,14 @@ class _BantuanScreenState extends State<BantuanScreen> {
                 ),
                 const Divider(height: 1),
                 _buildGuideTile(
-                  context,
                   icon: Icons.calculate_outlined,
                   title: 'Komputasi & Penilaian',
                   subtitle: 'Perhitungan nilai berbobot & kelompok',
                   content: '• Input Nilai: Nilai diinput per komponen praktikum. Komponen khusus "Project" dinilai paling akhir.\n\n'
-                      '• Pembagian Kelompok: Dikelompokkan otomatis berdasarkan angka sebelum koma dari rata-rata nilai (Ganjil/Genap) dengan penyeimbangan selisih maksimal 1 anggota.',
+                      '• Pembagian Kelompok: Dikelompokkan otomatis berdasarkan angka sebelum koma dari rata-rata nilai (Ganjil/Genap) dengan format 3-4 orang per kelompok.',
                 ),
                 const Divider(height: 1),
                 _buildGuideTile(
-                  context,
                   icon: Icons.calendar_month_outlined,
                   title: 'Konversi Kalender & Umur',
                   subtitle: 'Hitung umur dan kalender budaya',
@@ -246,7 +289,6 @@ class _BantuanScreenState extends State<BantuanScreen> {
                 ),
                 const Divider(height: 1),
                 _buildGuideTile(
-                  context,
                   icon: Icons.timer_outlined,
                   title: 'Stopwatch Laboratorium',
                   subtitle: 'Pengukur durasi modul & praktikum',
@@ -259,51 +301,48 @@ class _BantuanScreenState extends State<BantuanScreen> {
           const SizedBox(height: 20),
 
           // Section Header: Anggota Tim Pengembang
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-            child: Text(
-              'Tim Pengembang',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: colorScheme.onSurface,
-              ),
+          const Text(
+            'Tim Pengembang',
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF1E293B),
             ),
           ),
+          const SizedBox(height: 10),
 
-          Card(
-            elevation: 1,
-            shape: RoundedRectangleBorder(
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
               borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
             ),
-            child: const Padding(
-              padding: EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  _DeveloperMemberTile(
-                    nama: 'Gita Antonia Sipayung',
-                    tugas: 'Database (SQLite), Login, Session, & Navigation',
-                  ),
-                  Divider(height: 16),
-                  _DeveloperMemberTile(
-                    nama: 'Lucy Katarina Naibaho',
-                    tugas: 'CRUD Mata Praktikum & Kelola Praktikan',
-                  ),
-                  Divider(height: 16),
-                  _DeveloperMemberTile(
-                    nama: 'Serena Luna Halim',
-                    tugas: 'Komputasi Nilai Akhir, Pembobotan Nilai, Rata-rata & Kelompok',
-                  ),
-                  Divider(height: 16),
-                  _DeveloperMemberTile(
-                    nama: 'Gevinta Aprilia Putri',
-                    tugas: 'Konversi Kalender (Hijriah/Weton/Saka), Stopwatch, & Bantuan',
-                  ),
-                ],
-              ),
+            padding: const EdgeInsets.all(16),
+            child: const Column(
+              children: [
+                _DeveloperMemberTile(
+                  nama: 'Gita Antonia Sipayung',
+                  tugas: 'Database (SQLite), Login, Session, & Navigation',
+                ),
+                Divider(height: 16),
+                _DeveloperMemberTile(
+                  nama: 'Lucy Katarina Naibaho',
+                  tugas: 'CRUD Mata Praktikum & Kelola Praktikan',
+                ),
+                Divider(height: 16),
+                _DeveloperMemberTile(
+                  nama: 'Serena Luna Halim',
+                  tugas: 'Komputasi Nilai Akhir, Pembobotan Nilai, Rata-rata & Kelompok',
+                ),
+                Divider(height: 16),
+                _DeveloperMemberTile(
+                  nama: 'Gevinta Aprilia Putri',
+                  tugas: 'Konversi Kalender (Hijriah/Weton/Saka), Stopwatch, & Bantuan',
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
 
           // Logout Button
           SizedBox(
@@ -311,19 +350,20 @@ class _BantuanScreenState extends State<BantuanScreen> {
             height: 50,
             child: OutlinedButton.icon(
               onPressed: _handleLogout,
-              icon: const Icon(Icons.logout, color: Colors.redAccent),
+              icon: const Icon(Icons.logout_rounded, color: Color(0xFFEF4444)),
               label: const Text(
                 'Logout Dari Aplikasi',
                 style: TextStyle(
-                  color: Colors.redAccent,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15,
+                  color: Color(0xFFEF4444),
+                  fontWeight: FontWeight.w700,
+                  fontSize: 14,
                 ),
               ),
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Colors.redAccent),
+                side: const BorderSide(color: Color(0xFFFCA5A5)),
+                backgroundColor: const Color(0xFFFEF2F2),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(14),
                 ),
               ),
             ),
@@ -334,25 +374,36 @@ class _BantuanScreenState extends State<BantuanScreen> {
     );
   }
 
-  Widget _buildGuideTile(
-    BuildContext context, {
+  Widget _buildGuideTile({
     required IconData icon,
     required String title,
     required String subtitle,
     required String content,
   }) {
-    final colorScheme = Theme.of(context).colorScheme;
     return ExpansionTile(
-      leading: Icon(icon, color: colorScheme.primary),
-      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-      subtitle: Text(subtitle, style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant)),
+      leading: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: const Color(0xFFEFF6FF),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Icon(icon, color: const Color(0xFF2563EB), size: 20),
+      ),
+      title: Text(
+        title,
+        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5, color: Color(0xFF0F172A)),
+      ),
+      subtitle: Text(
+        subtitle,
+        style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+      ),
       childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       children: [
         Align(
           alignment: Alignment.centerLeft,
           child: Text(
             content,
-            style: TextStyle(fontSize: 13, color: colorScheme.onSurface.withAlpha(220), height: 1.4),
+            style: const TextStyle(fontSize: 13, color: Color(0xFF334155), height: 1.45),
           ),
         ),
       ],
@@ -374,7 +425,14 @@ class _DeveloperMemberTile extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Icon(Icons.person_outline, size: 20, color: Colors.blueAccent),
+        Container(
+          padding: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            color: const Color(0xFFEFF6FF),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: const Icon(Icons.person_outline_rounded, size: 18, color: Color(0xFF2563EB)),
+        ),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
@@ -382,12 +440,12 @@ class _DeveloperMemberTile extends StatelessWidget {
             children: [
               Text(
                 nama,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5, color: Color(0xFF0F172A)),
               ),
               const SizedBox(height: 2),
               Text(
                 tugas,
-                style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
               ),
             ],
           ),

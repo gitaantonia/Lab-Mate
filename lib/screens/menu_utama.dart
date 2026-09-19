@@ -13,12 +13,14 @@ class MenuUtama {
   final String judul;
   final String deskripsi;
   final IconData ikon;
+  final Color warna;
   final WidgetBuilder builder;
 
   const MenuUtama({
     required this.judul,
     required this.deskripsi,
     required this.ikon,
+    this.warna = const Color(0xFF2563EB),
     required this.builder,
   });
 }
@@ -28,44 +30,51 @@ List<MenuUtama> getSemuaMenu(String role) {
     return [
       MenuUtama(
         judul: 'Daftar Anggota',
-        deskripsi: 'Tambah, edit, dan hapus data praktikan',
-        ikon: Icons.groups,
+        deskripsi: 'Tambah, edit, dan kelola data praktikan',
+        ikon: Icons.people_alt_rounded,
+        warna: const Color(0xFF2563EB), // Blue
         builder: (_) => const PraktikanScreen(),
       ),
       MenuUtama(
         judul: 'Kelola Data Praktikum',
-        deskripsi: 'Tambah, edit, dan hapus mata praktikum',
-        ikon: Icons.folder_shared,
+        deskripsi: 'Kelola mata praktikum & komponen bobot',
+        ikon: Icons.auto_stories_rounded,
+        warna: const Color(0xFF0D9488), // Teal
         builder: (_) => const MataPraktikumScreen(),
       ),
       MenuUtama(
         judul: 'Komputasi Nilai',
-        deskripsi: 'Input nilai praktikan & komputasi nilai akhir',
-        ikon: Icons.calculate,
+        deskripsi: 'Input nilai praktikan & hitung nilai akhir',
+        ikon: Icons.calculate_rounded,
+        warna: const Color(0xFF7C3AED), // Violet
         builder: (_) => const NilaiInputScreen(),
       ),
       MenuUtama(
         judul: 'Kelompok Praktikum',
-        deskripsi: 'Lihat dan kelola kelompok praktikum',
-        ikon: Icons.group,
+        deskripsi: 'Lihat & bagi kelompok praktikum otomatis',
+        ikon: Icons.groups_rounded,
+        warna: const Color(0xFF0284C7), // Sky Blue
         builder: (_) => const KelompokScreen(),
       ),
       MenuUtama(
         judul: 'Rekap Nilai Praktikan',
-        deskripsi: 'Lihat rekap nilai seluruh praktikan berdasarkan mata praktikum',
-        ikon: Icons.table_chart,
+        deskripsi: 'Rekapitulasi nilai & grade seluruh praktikan',
+        ikon: Icons.table_chart_rounded,
+        warna: const Color(0xFFEA580C), // Orange
         builder: (_) => const RekapNilaiScreen(),
       ),
       MenuUtama(
         judul: 'Kalkulator Umur',
-        deskripsi: 'Hitung presisi usia dari tanggal acuan mana saja',
-        ikon: Icons.cake,
+        deskripsi: 'Hitung presisi usia dari tanggal acuan',
+        ikon: Icons.cake_rounded,
+        warna: const Color(0xFFDB2777), // Pink
         builder: (_) => const KalkulatorUmurScreen(),
       ),
       MenuUtama(
         judul: 'Konversi Kalender',
-        deskripsi: 'Penanggalan Hijriah, Weton Jawa, dan Wuku Saka Bali',
-        ikon: Icons.event,
+        deskripsi: 'Penanggalan Hijriah, Weton Jawa, & Saka Bali',
+        ikon: Icons.event_note_rounded,
+        warna: const Color(0xFF059669), // Emerald
         builder: (_) => const KonversiKalenderScreen(),
       ),
     ];
@@ -74,26 +83,30 @@ List<MenuUtama> getSemuaMenu(String role) {
   return [
     MenuUtama(
       judul: 'Lihat Nilai Saya',
-      deskripsi: 'Cek rincian skor komponen dan Nilai Akhir + Grade',
-      ikon: Icons.calculate,
+      deskripsi: 'Cek rincian skor komponen & Nilai Akhir + Grade',
+      ikon: Icons.analytics_rounded,
+      warna: const Color(0xFF2563EB),
       builder: (_) => const LihatNilaiScreen(),
     ),
     MenuUtama(
       judul: 'Kalkulator Umur',
       deskripsi: 'Hitung presisi usia dari tanggal acuan mana saja',
-      ikon: Icons.cake,
+      ikon: Icons.cake_rounded,
+      warna: const Color(0xFFDB2777),
       builder: (_) => const KalkulatorUmurScreen(),
     ),
     MenuUtama(
       judul: 'Konversi Kalender',
-      deskripsi: 'Penanggalan Hijriah, Weton Jawa, dan Wuku Saka Bali',
-      ikon: Icons.event,
+      deskripsi: 'Penanggalan Hijriah, Weton Jawa, & Wuku Saka Bali',
+      ikon: Icons.event_note_rounded,
+      warna: const Color(0xFF059669),
       builder: (_) => const KonversiKalenderScreen(),
     ),
     MenuUtama(
       judul: 'Daftar Anggota Kelas',
       deskripsi: 'Lihat info kelas, Aslab, jadwal, & rekan di kelas praktikum',
-      ikon: Icons.groups,
+      ikon: Icons.groups_rounded,
+      warna: const Color(0xFF0284C7),
       builder: (_) => const DetailKelasPraktikanScreen(
         mataPraktikumId: 1,
         namaMataPraktikum: 'Pemrograman Mobile',

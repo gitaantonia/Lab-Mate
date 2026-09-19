@@ -76,24 +76,50 @@ class _PraktikanScreenState extends State<PraktikanScreen> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: Text(item == null ? 'Tambah Praktikan' : 'Edit Praktikan'),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF2563EB).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.person_add_alt_1_rounded,
+                  color: Color(0xFF2563EB),
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                item == null ? 'Tambah Praktikan' : 'Edit Praktikan',
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+              ),
+            ],
+          ),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 8),
+                const SizedBox(height: 4),
                 DropdownButtonFormField<int>(
-                  value: mataId,
+                  initialValue: mataId,
                   decoration: const InputDecoration(
                     labelText: 'Mata Praktikum',
-                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.auto_stories_rounded),
                   ),
                   items: dataMata
                       .map(
                         (mata) => DropdownMenuItem<int>(
                           value: mata['id'] as int,
-                          child: Text(mata['nama'] as String),
+                          child: Text(
+                            mata['nama'] as String,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       )
                       .toList(),
@@ -107,8 +133,9 @@ class _PraktikanScreenState extends State<PraktikanScreen> {
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   decoration: const InputDecoration(
-                    labelText: 'NIM',
-                    border: OutlineInputBorder(),
+                    labelText: 'NIM (Nomor Induk Mahasiswa)',
+                    hintText: 'Contoh: 2021001',
+                    prefixIcon: Icon(Icons.badge_outlined),
                   ),
                 ),
                 const SizedBox(height: 14),
@@ -119,8 +146,9 @@ class _PraktikanScreenState extends State<PraktikanScreen> {
                     FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z ]')),
                   ],
                   decoration: const InputDecoration(
-                    labelText: 'Nama',
-                    border: OutlineInputBorder(),
+                    labelText: 'Nama Lengkap',
+                    hintText: 'Masukkan nama mahasiswa',
+                    prefixIcon: Icon(Icons.person_outline_rounded),
                   ),
                 ),
                 const SizedBox(height: 14),
@@ -133,7 +161,7 @@ class _PraktikanScreenState extends State<PraktikanScreen> {
                     );
                     final picked = await showDatePicker(
                       context: context,
-                      initialDate: tanggalSaatIni ?? DateTime(2000, 1, 1),
+                      initialDate: tanggalSaatIni ?? DateTime(2002, 1, 1),
                       firstDate: DateTime(1900),
                       lastDate: DateTime.now(),
                       helpText: 'PILIH TANGGAL LAHIR',
@@ -145,23 +173,24 @@ class _PraktikanScreenState extends State<PraktikanScreen> {
                     }
                   },
                   decoration: const InputDecoration(
-                    labelText: 'Tanggal lahir',
-                    border: OutlineInputBorder(),
-                    suffixIcon: Icon(Icons.calendar_month),
+                    labelText: 'Tanggal Lahir',
+                    hintText: 'YYYY-MM-DD',
+                    prefixIcon: Icon(Icons.calendar_month_rounded),
                   ),
                 ),
               ],
             ),
           ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
+          actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
               child: const Text('Batal'),
             ),
             FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: const Color(0xFF2563EB),
+              ),
               onPressed: () async {
                 final nim = nimController.text.trim();
                 final nama = namaController.text.trim();
@@ -236,7 +265,14 @@ class _PraktikanScreenState extends State<PraktikanScreen> {
     final yakin = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Hapus praktikan?'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: Colors.redAccent),
+            SizedBox(width: 8),
+            Text('Hapus Praktikan', style: TextStyle(fontSize: 18)),
+          ],
+        ),
         content: const Text('Data praktikan dan akun loginnya akan dihapus.'),
         actions: [
           TextButton(
@@ -244,6 +280,7 @@ class _PraktikanScreenState extends State<PraktikanScreen> {
             child: const Text('Batal'),
           ),
           FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: const Color(0xFFEF4444)),
             onPressed: () => Navigator.pop(context, true),
             child: const Text('Hapus'),
           ),
@@ -267,19 +304,18 @@ class _PraktikanScreenState extends State<PraktikanScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F7FF),
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        title: Text(widget.readOnly ? 'Data Praktikan' : 'Praktikan'),
-        centerTitle: true,
-        elevation: 0,
-        backgroundColor: Colors.transparent,
+        title: Text(widget.readOnly ? 'Daftar Praktikan' : 'Kelola Praktikan'),
       ),
       floatingActionButton: widget.readOnly
           ? null
           : FloatingActionButton.extended(
               onPressed: () => bukaForm(),
               icon: const Icon(Icons.person_add_alt_1_rounded),
-              label: const Text('Tambah'),
+              label: const Text('Tambah Praktikan'),
+              backgroundColor: const Color(0xFF2563EB),
+              foregroundColor: Colors.white,
             ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: praktikan,
@@ -294,94 +330,170 @@ class _PraktikanScreenState extends State<PraktikanScreen> {
           if (data.isEmpty) {
             return Center(
               child: Padding(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.all(32),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
-                      'Belum ada praktikan.\nKlik tambah untuk menambahkan data baru.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 16),
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF2563EB).withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.people_outline_rounded,
+                        size: 48,
+                        color: Color(0xFF2563EB),
+                      ),
                     ),
-                    const SizedBox(height: 18),
-                    if (!widget.readOnly)
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Belum Ada Praktikan',
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF1E293B),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Klik tambah untuk mendaftarkan mahasiswa praktikan baru.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                    if (!widget.readOnly) ...[
+                      const SizedBox(height: 20),
                       FilledButton.icon(
                         onPressed: () => bukaForm(),
                         icon: const Icon(Icons.person_add_alt_1_rounded),
                         label: const Text('Tambah Praktikan'),
                       ),
+                    ],
                   ],
                 ),
               ),
             );
           }
           return ListView.builder(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
             itemCount: data.length,
             itemBuilder: (context, index) {
               final item = data[index];
+              final nama = item['nama'] as String? ?? 'Praktikan';
+              final nim = item['nim'] as String? ?? '-';
+              final tgl = item['tanggal_lahir'] as String? ?? '-';
+
               return Container(
                 margin: const EdgeInsets.only(bottom: 12),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(18),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.blue.withOpacity(0.08),
-                      blurRadius: 14,
-                      offset: const Offset(0, 6),
+                      color: Colors.black.withValues(alpha: 0.02),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
                     ),
                   ],
                 ),
-                child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 18,
-                    vertical: 12,
-                  ),
-                  leading: CircleAvatar(
-                    radius: 24,
-                    backgroundColor: const Color(0xFFE3F2FD),
-                    child: const Icon(
-                      Icons.person_rounded,
-                      color: Color(0xFF1565C0),
-                    ),
-                  ),
-                  title: Text(
-                    item['nama'] as String,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 16,
-                    ),
-                  ),
-                  subtitle: Text(
-                    '${item['nim']} • ${item['tanggal_lahir'] ?? '-'}',
-                  ),
-                  trailing: widget.readOnly
-                      ? const Icon(Icons.visibility_rounded, color: Colors.grey)
-                      : Row(
+                child: Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 22,
+                        backgroundColor: const Color(0xFFEFF6FF),
+                        child: Text(
+                          nama.isNotEmpty ? nama[0].toUpperCase() : '?',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF2563EB),
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              nama,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 15,
+                                color: Color(0xFF0F172A),
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF1F5F9),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Text(
+                                    nim,
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF475569),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  tgl,
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.grey.shade500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (widget.readOnly)
+                        const Icon(Icons.visibility_rounded, color: Colors.grey, size: 20)
+                      else
+                        Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             IconButton(
                               tooltip: 'Edit',
+                              visualDensity: VisualDensity.compact,
                               onPressed: () => bukaForm(item: item),
-                              icon: const Icon(Icons.edit_outlined),
+                              icon: const Icon(Icons.edit_outlined, size: 18),
                               style: IconButton.styleFrom(
-                                backgroundColor: Colors.blue.shade50,
-                                foregroundColor: const Color(0xFF1565C0),
+                                backgroundColor: const Color(0xFFEFF6FF),
+                                foregroundColor: const Color(0xFF2563EB),
                               ),
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 4),
                             IconButton(
                               tooltip: 'Hapus',
+                              visualDensity: VisualDensity.compact,
                               onPressed: () => hapus(item['id'] as int),
-                              icon: const Icon(Icons.delete_outline_rounded),
+                              icon: const Icon(Icons.delete_outline_rounded, size: 18),
                               style: IconButton.styleFrom(
-                                backgroundColor: Colors.red.shade50,
-                                foregroundColor: Colors.red,
+                                backgroundColor: const Color(0xFFFEF2F2),
+                                foregroundColor: const Color(0xFFEF4444),
                               ),
                             ),
                           ],
                         ),
+                    ],
+                  ),
                 ),
               );
             },

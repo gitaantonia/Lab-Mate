@@ -97,6 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final nama = session?.nama ?? 'Pengguna';
     final menu = getSemuaMenu(widget.role);
+    final isAslab = widget.role == 'aslab';
 
     // Data dummy jadwal & aslab untuk variasi tampilan carousel
     final List<Map<String, String>> sampleMeta = [
@@ -106,7 +107,32 @@ class _HomeScreenState extends State<HomeScreen> {
     ];
 
     return Scaffold(
-      appBar: AppBar(title: const Text('LabMate')),
+      appBar: AppBar(
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1E40AF).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
+                Icons.biotech_rounded,
+                color: Color(0xFF1E40AF),
+                size: 22,
+              ),
+            ),
+            const SizedBox(width: 10),
+            const Text(
+              'LabMate',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
+            ),
+          ],
+        ),
+      ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -114,15 +140,15 @@ class _HomeScreenState extends State<HomeScreen> {
             // Header Profile Bar
             ListTile(
               leading: CircleAvatar(
-                backgroundColor: Colors.blue.shade100,
+                backgroundColor: const Color(0xFF1E40AF).withOpacity(0.1),
                 child: Text(
                   nama.isEmpty ? '?' : nama[0].toUpperCase(),
-                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue.shade900),
+                  style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E40AF)),
                 ),
               ),
-              title: Text('Halo, $nama'),
+              title: Text('Halo, $nama', style: const TextStyle(fontWeight: FontWeight.bold)),
               subtitle: Text(
-                widget.role == 'aslab' ? 'Asisten Laboratorium' : 'Praktikan',
+                isAslab ? 'Asisten Laboratorium' : 'Praktikan',
               ),
               trailing: const Icon(Icons.person_outline),
               onTap: () {
@@ -195,7 +221,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       final mpId = item['id'] as int;
 
                       final List<List<Color>> gradients = [
-                        [Colors.blue.shade800, Colors.indigo.shade600],
+                        [const Color(0xFF1E40AF), const Color(0xFF3B82F6)],
                         [Colors.teal.shade700, Colors.cyan.shade800],
                         [Colors.deepPurple.shade700, Colors.purple.shade600],
                       ];
@@ -316,7 +342,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   return Card(
                     margin: const EdgeInsets.only(bottom: 10),
                     child: ListTile(
-                      leading: Icon(item.ikon, color: Colors.blue.shade700),
+                      leading: CircleAvatar(
+                        backgroundColor: item.warna.withOpacity(0.12),
+                        child: Icon(item.ikon, color: item.warna),
+                      ),
                       title: Text(item.judul, style: const TextStyle(fontWeight: FontWeight.w600)),
                       subtitle: Text(item.deskripsi),
                       trailing: const Icon(Icons.chevron_right),

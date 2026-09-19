@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../database/database_helper.dart';
 import 'home_screen.dart';
-import 'home_aslab_screen.dart';
-import 'home_praktikan.screen.dart';
 import '../utils/session_helper.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -108,27 +106,27 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const Color primaryBlue = Color(0xFF1565C0);
-    const Color lightBlue = Color(0xFFE3F2FD);
+    const primaryColor = Color(0xFF1E40AF);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FB),
+      backgroundColor: const Color(0xFFF8FAFC),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 460),
+              constraints: const BoxConstraints(maxWidth: 440),
               child: Container(
                 padding: const EdgeInsets.all(28),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
-                      blurRadius: 25,
-                      offset: const Offset(0, 10),
+                      color: Colors.black.withValues(alpha: 0.04),
+                      blurRadius: 24,
+                      offset: const Offset(0, 8),
                     ),
                   ],
                 ),
@@ -136,26 +134,36 @@ class _LoginScreenState extends State<LoginScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // ========================================
-                    // LOGO
+                    // LOGO & HEADER
                     // ========================================
-
                     Center(
                       child: Container(
-                        width: 72,
-                        height: 72,
+                        width: 76,
+                        height: 76,
                         decoration: BoxDecoration(
-                          color: lightBlue,
-                          borderRadius: BorderRadius.circular(20),
+                          gradient: const LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [Color(0xFF2563EB), Color(0xFF1E40AF)],
+                          ),
+                          borderRadius: BorderRadius.circular(22),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF1E40AF).withValues(alpha: 0.3),
+                              blurRadius: 16,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
                         ),
                         child: const Icon(
-                          Icons.school_rounded,
-                          color: primaryBlue,
-                          size: 38,
+                          Icons.science_rounded,
+                          color: Colors.white,
+                          size: 40,
                         ),
                       ),
                     ),
 
-                    const SizedBox(height: 18),
+                    const SizedBox(height: 20),
 
                     Center(
                       child: Column(
@@ -163,16 +171,19 @@ class _LoginScreenState extends State<LoginScreen> {
                           const Text(
                             'LabMate',
                             style: TextStyle(
-                              fontSize: 30,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF172033),
+                              fontSize: 28,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF0F172A),
+                              letterSpacing: -0.5,
                             ),
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            'Sistem Manajemen Praktikum',
+                            'Sistem Manajemen Praktikum Mahasiswa',
+                            textAlign: TextAlign.center,
                             style: TextStyle(
-                              fontSize: 14,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
                               color: Colors.grey.shade600,
                             ),
                           ),
@@ -180,17 +191,18 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 28),
 
                     // ========================================
                     // LOGIN SEBAGAI
                     // ========================================
                     const Text(
-                      'Login sebagai',
+                      'Pilih Peran Akun',
                       style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF172033),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF334155),
+                        letterSpacing: 0.2,
                       ),
                     ),
 
@@ -201,36 +213,36 @@ class _LoginScreenState extends State<LoginScreen> {
                         Expanded(
                           child: _buildRoleCard(
                             title: 'Aslab',
-                            subtitle: 'Kelola praktikum',
+                            subtitle: 'Kelola Praktikum',
                             icon: Icons.admin_panel_settings_rounded,
                             value: 'aslab',
-                            color: primaryBlue,
+                            color: primaryColor,
                           ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: _buildRoleCard(
                             title: 'Praktikan',
-                            subtitle: 'Lihat kegiatan',
-                            icon: Icons.person_rounded,
+                            subtitle: 'Lihat Nilai',
+                            icon: Icons.school_rounded,
                             value: 'praktikan',
-                            color: primaryBlue,
+                            color: primaryColor,
                           ),
                         ),
                       ],
                     ),
 
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 22),
 
                     // ========================================
                     // USERNAME
                     // ========================================
                     const Text(
-                      'Username',
+                      'Username / NIM',
                       style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF172033),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF334155),
                       ),
                     ),
 
@@ -240,29 +252,26 @@ class _LoginScreenState extends State<LoginScreen> {
                       controller: usernameController,
                       textInputAction: TextInputAction.next,
                       decoration: InputDecoration(
-                        hintText: 'Masukkan username',
-                        prefixIcon: const Icon(Icons.person_outline_rounded),
+                        hintText: 'Masukkan username atau NIM',
+                        prefixIcon: const Icon(Icons.person_outline_rounded, size: 20),
                         filled: true,
                         fillColor: const Color(0xFFF8FAFC),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
-                          borderSide: BorderSide.none,
+                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
-                          borderSide: BorderSide(color: Colors.grey.shade200),
+                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
-                          borderSide: const BorderSide(
-                            color: primaryBlue,
-                            width: 1.5,
-                          ),
+                          borderSide: const BorderSide(color: primaryColor, width: 1.8),
                         ),
                       ),
                     ),
 
-                    const SizedBox(height: 18),
+                    const SizedBox(height: 16),
 
                     // ========================================
                     // PASSWORD
@@ -270,9 +279,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     const Text(
                       'Password',
                       style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF172033),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF334155),
                       ),
                     ),
 
@@ -288,13 +297,15 @@ class _LoginScreenState extends State<LoginScreen> {
                         }
                       },
                       decoration: InputDecoration(
-                        hintText: 'Masukkan password',
-                        prefixIcon: const Icon(Icons.lock_outline_rounded),
+                        hintText: 'Masukkan kata sandi',
+                        prefixIcon: const Icon(Icons.lock_outline_rounded, size: 20),
                         suffixIcon: IconButton(
                           icon: Icon(
                             obscurePassword
                                 ? Icons.visibility_off_outlined
                                 : Icons.visibility_outlined,
+                            size: 20,
+                            color: Colors.grey.shade600,
                           ),
                           onPressed: () {
                             setState(() {
@@ -306,18 +317,15 @@ class _LoginScreenState extends State<LoginScreen> {
                         fillColor: const Color(0xFFF8FAFC),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
-                          borderSide: BorderSide.none,
+                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
-                          borderSide: BorderSide(color: Colors.grey.shade200),
+                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
-                          borderSide: const BorderSide(
-                            color: primaryBlue,
-                            width: 1.5,
-                          ),
+                          borderSide: const BorderSide(color: primaryColor, width: 1.8),
                         ),
                       ),
                     ),
@@ -329,11 +337,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     // ========================================
                     SizedBox(
                       width: double.infinity,
-                      height: 54,
+                      height: 52,
                       child: ElevatedButton(
                         onPressed: isLoading ? null : login,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: primaryBlue,
+                          backgroundColor: primaryColor,
                           foregroundColor: Colors.white,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
@@ -342,10 +350,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         child: isLoading
                             ? const SizedBox(
-                                width: 23,
-                                height: 23,
+                                width: 22,
+                                height: 22,
                                 child: CircularProgressIndicator(
-                                  strokeWidth: 2.5,
+                                  strokeWidth: 2.2,
                                   color: Colors.white,
                                 ),
                               )
@@ -353,24 +361,25 @@ class _LoginScreenState extends State<LoginScreen> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    'Login',
+                                    'Masuk ke Akun',
                                     style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w700,
+                                      letterSpacing: 0.3,
                                     ),
                                   ),
                                   SizedBox(width: 8),
-                                  Icon(Icons.arrow_forward_rounded, size: 20),
+                                  Icon(Icons.arrow_forward_rounded, size: 18),
                                 ],
                               ),
                       ),
                     ),
 
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 18),
 
                     Center(
                       child: Text(
-                        'Silakan masuk sesuai akun yang digunakan',
+                        'Pastikan memilih role yang sesuai dengan akun Anda',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 12,
@@ -408,28 +417,28 @@ class _LoginScreenState extends State<LoginScreen> {
             },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFE3F2FD) : const Color(0xFFF8FAFC),
+          color: isSelected ? const Color(0xFFEFF6FF) : const Color(0xFFF8FAFC),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? color : Colors.grey.shade200,
-            width: isSelected ? 1.5 : 1,
+            color: isSelected ? color : const Color(0xFFE2E8F0),
+            width: isSelected ? 1.8 : 1,
           ),
         ),
         child: Row(
           children: [
             Container(
-              width: 42,
-              height: 42,
+              width: 38,
+              height: 38,
               decoration: BoxDecoration(
-                color: isSelected ? color : Colors.grey.shade200,
-                borderRadius: BorderRadius.circular(12),
+                color: isSelected ? color : const Color(0xFFE2E8F0),
+                borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
                 icon,
-                color: isSelected ? Colors.white : Colors.grey.shade600,
-                size: 21,
+                color: isSelected ? Colors.white : const Color(0xFF64748B),
+                size: 20,
               ),
             ),
             const SizedBox(width: 10),
@@ -440,14 +449,18 @@ class _LoginScreenState extends State<LoginScreen> {
                   Text(
                     title,
                     style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: isSelected ? color : const Color(0xFF172033),
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                      color: isSelected ? color : const Color(0xFF1E293B),
                     ),
                   ),
-                  const SizedBox(height: 3),
+                  const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: isSelected ? const Color(0xFF3B82F6) : const Color(0xFF64748B),
+                    ),
                   ),
                 ],
               ),
@@ -456,8 +469,8 @@ class _LoginScreenState extends State<LoginScreen> {
               isSelected
                   ? Icons.radio_button_checked_rounded
                   : Icons.radio_button_off_rounded,
-              color: isSelected ? color : Colors.grey.shade400,
-              size: 20,
+              color: isSelected ? color : const Color(0xFFCBD5E1),
+              size: 18,
             ),
           ],
         ),

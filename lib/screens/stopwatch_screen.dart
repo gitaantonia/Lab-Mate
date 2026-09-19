@@ -122,7 +122,6 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     final isRunning = _stopwatch.isRunning;
     final hasStarted = _stopwatch.elapsedMilliseconds > 0;
     final formattedTime = _formatDuration(_stopwatch.elapsed);
@@ -130,13 +129,14 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
     final slowestIndex = _getSlowestLapIndex();
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         title: const Text('Stopwatch Laboratorium'),
         centerTitle: true,
         actions: [
           if (_laps.isNotEmpty)
             IconButton(
-              icon: const Icon(Icons.delete_outline),
+              icon: const Icon(Icons.delete_sweep_outlined),
               tooltip: 'Hapus Semua Lap',
               onPressed: _clearLaps,
             ),
@@ -148,14 +148,15 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
           Container(
             width: double.infinity,
             margin: const EdgeInsets.all(16),
-            padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 20),
+            padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 20),
             decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHigh,
+              color: Colors.white,
               borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withAlpha(12),
-                  blurRadius: 10,
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 16,
                   offset: const Offset(0, 4),
                 ),
               ],
@@ -167,9 +168,14 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                   decoration: BoxDecoration(
                     color: isRunning
-                        ? colorScheme.primaryContainer
-                        : (hasStarted ? colorScheme.errorContainer : colorScheme.surfaceContainerHighest),
+                        ? const Color(0xFFECFDF5)
+                        : (hasStarted ? const Color(0xFFFEF2F2) : const Color(0xFFF1F5F9)),
                     borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: isRunning
+                          ? const Color(0xFFA7F3D0)
+                          : (hasStarted ? const Color(0xFFFECACA) : const Color(0xFFE2E8F0)),
+                    ),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -180,8 +186,8 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
                             : (hasStarted ? Icons.pause_rounded : Icons.timer_outlined),
                         size: 16,
                         color: isRunning
-                            ? colorScheme.onPrimaryContainer
-                            : (hasStarted ? colorScheme.onErrorContainer : colorScheme.onSurfaceVariant),
+                            ? const Color(0xFF059669)
+                            : (hasStarted ? const Color(0xFFDC2626) : const Color(0xFF64748B)),
                       ),
                       const SizedBox(width: 6),
                       Text(
@@ -193,34 +199,35 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
                           fontWeight: FontWeight.bold,
                           letterSpacing: 1.1,
                           color: isRunning
-                              ? colorScheme.onPrimaryContainer
-                              : (hasStarted ? colorScheme.onErrorContainer : colorScheme.onSurfaceVariant),
+                              ? const Color(0xFF059669)
+                              : (hasStarted ? const Color(0xFFDC2626) : const Color(0xFF64748B)),
                         ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 20),
                 // Main Time Text
                 FittedBox(
                   fit: BoxFit.scaleDown,
                   child: Text(
                     formattedTime,
-                    style: TextStyle(
-                      fontSize: 54,
-                      fontWeight: FontWeight.w700,
-                      fontFeatures: const [FontFeature.tabularFigures()],
-                      color: colorScheme.onSurface,
+                    style: const TextStyle(
+                      fontSize: 56,
+                      fontWeight: FontWeight.w800,
+                      fontFeatures: [FontFeature.tabularFigures()],
+                      color: Color(0xFF1E293B),
                       letterSpacing: 1.5,
                     ),
                   ),
                 ),
-                const SizedBox(height: 8),
-                Text(
+                const SizedBox(height: 6),
+                const Text(
                   'Menit : Detik . Milidetik',
                   style: TextStyle(
                     fontSize: 12,
-                    color: colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFF94A3B8),
                   ),
                 ),
                 const SizedBox(height: 28),
@@ -231,38 +238,45 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
                     // Reset Button
                     OutlinedButton.icon(
                       onPressed: hasStarted ? _resetStopwatch : null,
-                      icon: const Icon(Icons.refresh_rounded),
+                      icon: const Icon(Icons.refresh_rounded, size: 20),
                       label: const Text('Reset'),
                       style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        foregroundColor: const Color(0xFF64748B),
+                        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                        side: const BorderSide(color: Color(0xFFCBD5E1)),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(14),
                         ),
                       ),
                     ),
                     // Start/Pause Button (Primary Action)
                     FilledButton.icon(
                       onPressed: _toggleStopwatch,
-                      icon: Icon(isRunning ? Icons.pause_rounded : Icons.play_arrow_rounded),
+                      icon: Icon(isRunning ? Icons.pause_rounded : Icons.play_arrow_rounded, size: 22),
                       label: Text(isRunning ? 'Jeda' : (hasStarted ? 'Lanjut' : 'Mulai')),
                       style: FilledButton.styleFrom(
-                        backgroundColor: isRunning ? colorScheme.error : colorScheme.primary,
-                        foregroundColor: isRunning ? colorScheme.onError : colorScheme.onPrimary,
-                        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+                        backgroundColor: isRunning ? const Color(0xFFE11D48) : const Color(0xFF1E40AF),
+                        foregroundColor: Colors.white,
+                        elevation: 2,
+                        padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 14),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(14),
                         ),
                       ),
                     ),
                     // Lap Button
                     ElevatedButton.icon(
                       onPressed: (hasStarted && isRunning) ? _recordLap : null,
-                      icon: const Icon(Icons.flag_outlined),
+                      icon: const Icon(Icons.flag_outlined, size: 20),
                       label: const Text('Lap'),
                       style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        backgroundColor: const Color(0xFFF1F5F9),
+                        foregroundColor: const Color(0xFF334155),
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(14),
+                          side: const BorderSide(color: Color(0xFFE2E8F0)),
                         ),
                       ),
                     ),
@@ -278,26 +292,33 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Catatan Lap (${_laps.length})',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: colorScheme.onSurface,
-                  ),
+                Row(
+                  children: [
+                    const Icon(Icons.flag_rounded, size: 18, color: Color(0xFF1E40AF)),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Catatan Lap (${_laps.length})',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF1E293B),
+                      ),
+                    ),
+                  ],
                 ),
                 if (_laps.isNotEmpty)
-                  Text(
+                  const Text(
                     'Putaran & Waktu Total',
                     style: TextStyle(
                       fontSize: 12,
-                      color: colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF64748B),
                     ),
                   ),
               ],
             ),
           ),
-          const Divider(height: 1),
+          const Divider(height: 1, color: Color(0xFFE2E8F0)),
 
           // Laps List or Empty State
           Expanded(
@@ -306,36 +327,43 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
-                          Icons.timer_outlined,
-                          size: 64,
-                          color: colorScheme.outlineVariant,
+                        Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF1F5F9),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.timer_outlined,
+                            size: 48,
+                            color: Color(0xFF94A3B8),
+                          ),
                         ),
-                        const SizedBox(height: 12),
-                        Text(
+                        const SizedBox(height: 16),
+                        const Text(
                           'Belum Ada Catatan Waktu',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: colorScheme.onSurfaceVariant,
+                            color: Color(0xFF334155),
                           ),
                         ),
                         const SizedBox(height: 4),
-                        Text(
+                        const Text(
                           'Tekan tombol "Lap" saat stopwatch berjalan\nuntuk mencatat interval praktikum.',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 13,
-                            color: colorScheme.outline,
+                            color: Color(0xFF64748B),
                           ),
                         ),
                       ],
                     ),
                   )
                 : ListView.separated(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(16),
                     itemCount: _laps.length,
-                    separatorBuilder: (context, index) => const Divider(height: 1),
+                    separatorBuilder: (context, index) => const SizedBox(height: 8),
                     itemBuilder: (context, index) {
                       final lapNum = _laps.length - index;
                       final totalSplit = _laps[index];
@@ -344,44 +372,64 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
                       final isFastest = index == fastestIndex;
                       final isSlowest = index == slowestIndex;
 
-                      Color? tileColor;
+                      Color cardBg = Colors.white;
+                      Color borderColor = const Color(0xFFE2E8F0);
                       Widget? badgeWidget;
 
                       if (isFastest) {
-                        tileColor = Colors.green.withAlpha(25);
+                        cardBg = const Color(0xFFF0FDF4);
+                        borderColor = const Color(0xFFBBF7D0);
                         badgeWidget = Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
-                            color: Colors.green.withAlpha(40),
-                            borderRadius: BorderRadius.circular(12),
+                            color: const Color(0xFFDCFCE7),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: const Color(0xFF86EFAC)),
                           ),
                           child: const Text(
                             'Tercepat',
-                            style: TextStyle(fontSize: 11, color: Colors.green, fontWeight: FontWeight.bold),
+                            style: TextStyle(fontSize: 11, color: Color(0xFF16A34A), fontWeight: FontWeight.bold),
                           ),
                         );
                       } else if (isSlowest) {
-                        tileColor = Colors.orange.withAlpha(25);
+                        cardBg = const Color(0xFFFFFBEB);
+                        borderColor = const Color(0xFFFDE68A);
                         badgeWidget = Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
-                            color: Colors.orange.withAlpha(40),
-                            borderRadius: BorderRadius.circular(12),
+                            color: const Color(0xFFFEF3C7),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: const Color(0xFFFCD34D)),
                           ),
                           child: const Text(
                             'Terlambat',
-                            style: TextStyle(fontSize: 11, color: Colors.orange, fontWeight: FontWeight.bold),
+                            style: TextStyle(fontSize: 11, color: Color(0xFFD97706), fontWeight: FontWeight.bold),
                           ),
                         );
                       }
 
                       return Container(
-                        color: tileColor,
+                        decoration: BoxDecoration(
+                          color: cardBg,
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: borderColor),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.02),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
                         child: ListTile(
                           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                           leading: CircleAvatar(
-                            backgroundColor: colorScheme.secondaryContainer,
-                            foregroundColor: colorScheme.onSecondaryContainer,
+                            backgroundColor: isFastest
+                                ? const Color(0xFFDCFCE7)
+                                : (isSlowest ? const Color(0xFFFEF3C7) : const Color(0xFFEFF6FF)),
+                            foregroundColor: isFastest
+                                ? const Color(0xFF16A34A)
+                                : (isSlowest ? const Color(0xFFD97706) : const Color(0xFF1E40AF)),
                             radius: 18,
                             child: Text(
                               '#$lapNum',
@@ -393,8 +441,9 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
                               Text(
                                 '+${_formatDuration(delta)}',
                                 style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
+                                  fontWeight: FontWeight.w700,
                                   fontSize: 15,
+                                  color: Color(0xFF1E293B),
                                   fontFeatures: [FontFeature.tabularFigures()],
                                 ),
                               ),
@@ -406,16 +455,17 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
                           ),
                           subtitle: Text(
                             'Total: ${_formatDuration(totalSplit)}',
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 12,
-                              color: colorScheme.onSurfaceVariant,
-                              fontFeatures: const [FontFeature.tabularFigures()],
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF64748B),
+                              fontFeatures: [FontFeature.tabularFigures()],
                             ),
                           ),
-                          trailing: Icon(
-                            Icons.flag_outlined,
-                            size: 20,
-                            color: colorScheme.onSurfaceVariant,
+                          trailing: const Icon(
+                            Icons.flag_rounded,
+                            size: 18,
+                            color: Color(0xFF94A3B8),
                           ),
                         ),
                       );

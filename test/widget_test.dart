@@ -7,6 +7,6 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: LoginScreen()));
 
     expect(find.text('LabMate'), findsOneWidget);
-    expect(find.text('Username'), findsOneWidget);
+    expect(find.textContaining('Username'), findsOneWidget);
   });
 }
