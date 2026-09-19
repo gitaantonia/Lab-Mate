@@ -7,6 +7,7 @@ import 'nilai/lihat_nilai_screen.dart';
 import 'nilai/rekap_nilai_screen.dart';
 import 'kalkulator_umur_screen.dart';
 import 'konversi_kalender_screen.dart';
+import 'detail_kelas_praktikan_screen.dart';
 
 class MenuUtama {
   final String judul;
@@ -90,10 +91,13 @@ List<MenuUtama> getSemuaMenu(String role) {
       builder: (_) => const KonversiKalenderScreen(),
     ),
     MenuUtama(
-      judul: 'Daftar Anggota',
-      deskripsi: 'Lihat data rekan praktikan secara read-only',
+      judul: 'Daftar Anggota Kelas',
+      deskripsi: 'Lihat info kelas, Aslab, jadwal, & rekan di kelas praktikum',
       ikon: Icons.groups,
-      builder: (_) => const PraktikanScreen(readOnly: true),
+      builder: (_) => const DetailKelasPraktikanScreen(
+        mataPraktikumId: 1,
+        namaMataPraktikum: 'Pemrograman Mobile',
+      ),
     ),
   ];
 }

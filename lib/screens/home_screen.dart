@@ -268,7 +268,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       const SizedBox(height: 4),
                                       Text(
                                         'Aslab: ${meta['aslab']}',
-                                        style: const TextStyle(fontSize: 12, color: Colors.white90),
+                                        style: const TextStyle(fontSize: 12, color: Colors.white70),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),

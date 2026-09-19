@@ -169,6 +169,7 @@ class DBHelper {
     if (result.isNotEmpty) return result.first;
     if (normalizedPassword != '12345') return null;
 
+    // Cek apakah NIM terdaftar di tabel praktikan yang diinput oleh Aslab
     final praktikan = await db.query(
       'praktikan',
       where: 'nim = ?',
@@ -176,20 +177,10 @@ class DBHelper {
       limit: 1,
     );
 
-    int praktikanId;
-    if (praktikan.isEmpty) {
-      // Auto-register NIM praktikan baru jika login pertama dengan password '12345'
-      final listMp = await getMataPraktikum();
-      final mpId = listMp.isNotEmpty ? listMp.first['id'] as int : 1;
-      praktikanId = await db.insert('praktikan', {
-        'mata_praktikum_id': mpId,
-        'nim': normalizedUsername,
-        'nama': 'Praktikan $normalizedUsername',
-        'tanggal_lahir': '2002-05-15',
-      });
-    } else {
-      praktikanId = praktikan.first['id'] as int;
-    }
+    // Jika NIM belum terdaftar di mata praktikum mana pun oleh Aslab, login ditolak
+    if (praktikan.isEmpty) return null;
+
+    final praktikanId = praktikan.first['id'] as int;
 
     final akun = await db.query(
       'akun',
@@ -298,6 +289,7 @@ class DBHelper {
     }
 
     const dataDemo = [
+      ('124240114', 'Praktikan Demo 124240114', '2002-05-15'),
       ('2024010001', 'Serena', '2001-01-01'),
       ('2024010002', 'Gita', '2001-02-02'),
       ('2024010003', 'Amalia', '2001-03-03'),
